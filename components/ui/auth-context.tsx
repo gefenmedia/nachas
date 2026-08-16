@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { store, User } from '@/lib/store'
 import { trackEvent } from '@/lib/track'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 
 interface AuthUser { id: string; email: string; name: string; avatarUrl?: string; bio?: string }
 
@@ -77,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return true
   }
 
-      const signup = async (name: string, email: string, password: string): Promise<boolean> => {
+       const signup = async (name: string, email: string, password: string): Promise<boolean> => {
     if (!isSupabaseConfigured()) {
       try {
         const user = store.createUser({ email, name, password, notificationTime: '20:00', timezone: 'America/New_York' })
