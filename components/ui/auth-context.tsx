@@ -77,43 +77,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return true
   }
 
-  const signup = async (name: string, email: string, password: string): Promise<boolean> => {
-    // server-first: account is created on the shared backend, usable from any device
-    try {
-      const r = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
-      })
-      if (r.ok) {
-        const { user: serverUser } = await r.json()
-        const full = store.importServerUser(serverUser, password)
-        trackEvent('signup', { name }, { userId: serverUser.id, userName: name })
-        store.setSession(full)
-        setUser(toAuthUser(full))
+      const signup = async (name: string, email: string, password: string): Promise<boolean> => {
+    if (!isSupabaseConfigured()) {
+      try {
+        const user = store.createUser({ email, name, password, notificationTime: '20:00', timezone: 'America/New_York' })
+        store.setSession(user)
+        setUser(toAuthUser(user))
         return true
-      }
-      if (r.status === 409) return false
-    } catch {
-      // server unreachable — local-only fallback below
+      } catch { return false }
     }
-    try {
-      const user = store.createUser({ email, name, password, notificationTime: '20:00', timezone: 'America/New_York' })
-      store.setSession(user)
-      setUser(toAuthUser(user))
-      return true
-    } catch {
-      return false
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { name } }
+    })
+    if (authError || !authData.user) return false
+    const user = {
+      id: authData.user.id,
+      email,
+      name,
+      notificationTime: '20:00',
+      timezone: 'America/New_York',
+      createdAt: new Date().toISOString(),
     }
-  }
-
-  const updateAvatar = (avatarUrl: string) => {
-    if (!user) return
-    const updated = store.updateUser(user.id, { avatarUrl })
-    if (updated) {
-      setUser(toAuthUser(updated))
-      trackEvent('photo_uploaded', {}, { userId: user.id, userName: user.name })
-    }
+    await supabase.from('users').insert(user)
+    store.setSession(user as any)
+    setUser(toAuthUser(user as any))
+    trackEvent('signup', { name }, { userId: user.id, userName: name })
+    return true
   }
 
   const updateBio = (bio: string) => {
