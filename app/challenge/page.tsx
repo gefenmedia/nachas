@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense, useEffect, useRef, useState } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import confetti from 'canvas-confetti'
 import Link from 'next/link'
 import { TrendingUp, MessageCircle, Share2, PartyPopper, Heart, UserPlus, ImageDown, Check } from 'lucide-react'
@@ -20,16 +20,12 @@ function fireCelebration() {
   setTimeout(() => confetti({ particleCount: 100, angle: 60, spread: 60, origin: { x: 0 } }), 250)
   setTimeout(() => confetti({ particleCount: 100, angle: 120, spread: 60, origin: { x: 1 } }), 450)
 }
-
 function ChallengeContent() {
-  const searchParams = useSearchParams()
   const router = useRouter()
   const { user } = useAuth()
-  const deepLink = typeof window !== 'undefined' ? getDeepLinkFromLocation(window.location) : null
-  const urlParams = typeof window !== 'undefined' ? locationParams(window.location) : new URLSearchParams()
-  const id = searchParams.get('id') || (deepLink && deepLink.kind === 'challenge' ? deepLink.id : '') || urlParams.get('id') || ''
-  const isNewLaunch = searchParams.get('new') === '1' || urlParams.get('new') === '1'
-  const buddyName = searchParams.get('buddy') || urlParams.get('buddy') || ''
+  const [id, setId] = useState('')
+  const [isNewLaunch, setIsNewLaunch] = useState(false)
+  const [buddyName, setBuddyName] = useState('')
   const [challenge, setChallenge] = useState<Challenge | null>(null)
   const [notFound, setNotFound] = useState(false)
   const [newComment, setNewComment] = useState({ authorName: '', text: '' })
@@ -46,23 +42,38 @@ function ChallengeContent() {
   const [displayRaised, setDisplayRaised] = useState(0)
   const prevRaisedRef = useRef<number | null>(null)
 
+  // Read challenge ID directly from URL — useSearchParams() doesn't work in static exports
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''))
+    setId(params.get('id') || hashParams.get('id') || '')
+    setIsNewLaunch(params.get('new') === '1')
+    setBuddyName(params.get('buddy') || '')
+  }, [])
+
+  useEffect(() => {
+    if (!id) return
     store.init()
-    if (id) {
-      setLaunchSeen(!!localStorage.getItem(`nachas_launch_seen_${id}`))
-      const local = store.getChallengeById(id)
-      if (local) {
-        refresh()
-        return
-      }
-      // Not on this device yet — pull the shared server state (shared links work cross-device)
-      store.syncFromServer().then(() => {
-        if (store.getChallengeById(id)) refresh()
-        else setNotFound(true)
-      })
-    } else {
-      setNotFound(true)
+    setLaunchSeen(!!localStorage.getItem(`nachas_launch_seen_${id}`))
+    const local = store.getChallengeById(id)
+    if (local) {
+      refresh()
+      return
     }
+    store.syncFromServer().then(() => {
+      if (store.getChallengeById(id)) refresh()
+      else setNotFound(true)
+    })
+  }, [id])
+    // Not on this device yet — pull from Supabase
+    store.syncFromServer().then(() => {
+      if (store.getChallengeById(id)) {
+        refresh()
+      } else {
+        console.log('Challenge not found after sync:', id)
+        setNotFound(true)
+      }
+    })
   }, [id])
 
   useEffect(() => {
