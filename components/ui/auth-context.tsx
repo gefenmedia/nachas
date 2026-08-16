@@ -59,14 +59,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password })
     if (authError || !authData.user) return false
+    // Auth succeeded — this is a real account. Try to fetch the richer profile row,
+    // but don't let a missing/inaccessible 'users' table block a valid login.
     const { data: profile } = await supabase.from('users').select('*').eq('email', email).single()
-    if (profile) {
-      store.importServerUser(profile, password)
-      store.setSession(profile)
-      setUser(toAuthUser(profile))
-      return true
+    const serverUser = profile || {
+      id: authData.user.id,
+      email: authData.user.email || email,
+      name: (authData.user.user_metadata as any)?.name || email.split('@')[0],
     }
-    return false
+    const full = store.importServerUser(serverUser, password)
+    store.setSession(full)
+    setUser(toAuthUser(full))
+    return true
   }
 
   const signup = async (name: string, email: string, password: string): Promise<boolean> => {
@@ -92,9 +96,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       timezone: 'America/New_York',
       createdAt: new Date().toISOString(),
     }
-    await supabase.from('users').insert(user)
-    store.setSession(user as any)
-    setUser(toAuthUser(user as any))
+    // Best-effort profile row — if the 'users' table isn't set up yet, the account
+    // still exists in Supabase Auth and the session below still works.
+    try {
+      const { error: insertError } = await supabase.from('users').insert(user)
+      if (insertError) console.error('Supabase users insert error:', insertError.message)
+    } catch (e) {
+      console.error('Supabase users insert exception:', e)
+    }
+    const full = store.importServerUser(user, password)
+    store.setSession(full)
+    setUser(toAuthUser(full))
     trackEvent('signup', { name }, { userId: user.id, userName: name })
     return true
   }
