@@ -65,25 +65,7 @@ function ChallengeContent() {
       else setNotFound(true)
     })
   }, [id])
-    // Not on this device yet — pull from Supabase
-    store.syncFromServer().then(() => {
-      if (store.getChallengeById(id)) {
-        refresh()
-      } else {
-        console.log('Challenge not found after sync:', id)
-        setNotFound(true)
-      }
-    })
-  }, [id])
-
-  useEffect(() => {
-    if (challenge && user) {
-      setFollowing(store.isFollowing(challenge.userId, user.id))
-    }
-  }, [challenge, user])
-
-  // near-live updates: poll the shared state while the page is open
-  useEffect(() => {
+    useEffect(() => {
     const t = setInterval(async () => {
       await store.syncFromServer()
       refresh()
