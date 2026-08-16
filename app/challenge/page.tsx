@@ -266,9 +266,8 @@ function ChallengeContent() {
       <div className="max-w-md mx-auto px-6 py-20 text-center">
         <LogoMark className="w-12 h-12 mx-auto mb-6" />
         <h1 className="text-2xl font-bold mb-3">Challenge not found</h1>
-        <p className="text-white/60 mb-8">
-          This challenge isn&apos;t available on this device. Nachas is a beta demo — challenge data is stored locally
-          in the browser where it was created.
+              <p className="text-white/60 mb-8">
+          We couldn&apos;t find this challenge. It may have been removed, or there might be a connection issue.
         </p>
         <Link href="/new-challenge" className="btn-primary w-full inline-block py-3.5">Take a Challenge</Link>
         <Link href="/" className="btn-secondary w-full inline-block py-3.5 mt-3">Create your own Nachas account</Link>
