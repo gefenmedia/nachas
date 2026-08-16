@@ -1,129 +1,113 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { Heart, Users, TrendingUp } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { store } from '@/lib/store'
+import { formatCents } from '@/lib/utils'
+import { getDeepLinkFromLocation, rememberReturnTo } from '@/lib/deep-link'
+import { LogoMark } from '@/components/ui/logo'
+import { useAuth } from '@/components/ui/auth-context'
+import { HomeScreen } from '@/components/ui/home-screen'
 
-export default function HomePage() {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [goalAmount, setGoalAmount] = useState('');
-  const [charityName, setCharityName] = useState('');
-  const [creatorName, setCreatorName] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export default function LandingPage() {
+  const { user, loading } = useAuth()
+  const router = useRouter()
+  const [stats, setStats] = useState({ activeChallenges: 0, totalRaised: 0, maxStreak: 0, ripples: 0 })
+  const [deepLinkChecked, setDeepLinkChecked] = useState(false)
 
-  const handleCreateChallenge = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title || !goalAmount) {
-      alert('Please fill out the challenge title and goal amount.');
-      return;
+  useEffect(() => {
+    const target = getDeepLinkFromLocation(window.location)
+    if (target && window.location.pathname === '/') {
+      rememberReturnTo(target.returnTo)
+      router.replace(target.returnTo)
+      return
     }
+    setDeepLinkChecked(true)
+  }, [router])
 
-    setIsSubmitting(true);
+  useEffect(() => {
+    store.init()
+    setStats(store.getStats())
+  }, [])
 
-    // Generate a unique ID for the share link
-    const customId = Math.random().toString(36).substring(2, 11);
+  if (!deepLinkChecked) return <div className="flex items-center justify-center min-h-[60vh]">Loading...</div>
 
-    // Save directly to your Supabase cloud database
-    const { error } = await supabase.from('challenges').insert([
-      {
-        id: customId,
-        title,
-        description,
-        goal_amount: Number(goalAmount),
-        charity_name: charityName || 'General Charity',
-        creator_name: creatorName || 'Anonymous',
-        raised_amount: 0,
-      },
-    ]);
-
-    if (error) {
-      console.error(error);
-      alert('Failed to save challenge to cloud. Please try again.');
-      setIsSubmitting(false);
-      return;
-    }
-
-    // Redirect directly to the newly created share link
-    window.location.href = `/challenge/?id=${customId}`;
-  };
+  if (!loading && user) return <HomeScreen />
 
   return (
-    <main className="max-w-md mx-auto px-4 py-8 min-h-screen text-white">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-extrabold text-yellow-500 mb-2">NACHAS</h1>
-        <p className="text-gray-300 text-sm">Turn Your Personal Growth Into Real Charity</p>
-      </div>
-
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-        <h2 className="text-xl font-bold mb-4">Create Your Challenge</h2>
-        
-        <form onSubmit={handleCreateChallenge} className="space-y-4">
-          <div>
-            <label className="block text-xs text-gray-400 mb-1">Your Name</label>
-            <input
-              type="text"
-              placeholder="e.g. Daniel"
-              value={creatorName}
-              onChange={(e) => setCreatorName(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-yellow-500"
-            />
+    <div>
+      <section className="relative px-6 pt-14 pb-16 md:pt-20 md:pb-24 text-center overflow-hidden">
+        <svg className="absolute -right-28 top-1/2 -translate-y-1/2 w-[420px] h-[420px] md:w-[560px] md:h-[560px] pointer-events-none opacity-50 md:opacity-100" viewBox="0 0 480 480" fill="none" aria-hidden="true">
+          <circle cx="240" cy="240" r="232" stroke="#f5c542" strokeOpacity="0.07" strokeWidth="1.5" />
+          <circle cx="240" cy="240" r="180" stroke="#f5c542" strokeOpacity="0.11" strokeWidth="1.5" />
+          <circle cx="240" cy="240" r="128" stroke="#f5c542" strokeOpacity="0.16" strokeWidth="1.5" />
+          <circle cx="240" cy="240" r="54" stroke="#f5c542" strokeOpacity="0.85" strokeWidth="26" className="hidden md:block" />
+        </svg>
+        <div className="max-w-3xl mx-auto">
+          <h1 className="text-4xl md:text-7xl font-bold mb-6 leading-tight">
+            Turn Your <span className="text-nachas-gold">Spiritual Growth</span><br />
+            Into Charity
+          </h1>
+          <p className="text-lg md:text-xl text-white/60 mb-10 max-w-xl mx-auto">
+            Take on a challenge.<br />
+            Raise money for causes you care about.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-sm sm:max-w-none mx-auto">
+            <Link href="/new-challenge" className="btn-primary text-lg text-center">Take Your First Challenge</Link>
+            <Link href="/leaderboard" className="btn-secondary text-lg text-center">View Leaderboard</Link>
           </div>
+        </div>
+      </section>
 
+      <section className="px-6 py-12 border-y border-white/5">
+        <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           <div>
-            <label className="block text-xs text-gray-400 mb-1">Challenge Title *</label>
-            <input
-              type="text"
-              placeholder="e.g. Daily Study & Exercise Challenge"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-yellow-500"
-            />
+            <div className="text-3xl font-bold text-nachas-gold">{stats.activeChallenges.toLocaleString()}</div>
+            <div className="text-white/50 text-sm mt-1">Active Challenges</div>
           </div>
-
           <div>
-            <label className="block text-xs text-gray-400 mb-1">Description</label>
-            <textarea
-              placeholder="What are you taking on, and why are you raising funds?"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-yellow-500"
-            />
+            <div className="text-3xl font-bold text-nachas-teal">{formatCents(stats.totalRaised)}</div>
+            <div className="text-white/50 text-sm mt-1">Raised</div>
           </div>
-
           <div>
-            <label className="block text-xs text-gray-400 mb-1">Charity Name</label>
-            <input
-              type="text"
-              placeholder="e.g. Local Food Bank"
-              value={charityName}
-              onChange={(e) => setCharityName(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-yellow-500"
-            />
+            <div className="text-3xl font-bold text-nachas-coral">{stats.maxStreak}</div>
+            <div className="text-white/50 text-sm mt-1">Day Max Streak</div>
           </div>
-
           <div>
-            <label className="block text-xs text-gray-400 mb-1">Fundraising Goal ($) *</label>
-            <input
-              type="number"
-              placeholder="e.g. 500"
-              value={goalAmount}
-              onChange={(e) => setGoalAmount(e.target.value)}
-              required
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-yellow-500"
-            />
+            <div className="text-3xl font-bold text-nachas-purple">{stats.ripples}</div>
+            <div className="text-white/50 text-sm mt-1">Ripples Created</div>
           </div>
+        </div>
+      </section>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full py-3.5 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-xl shadow-lg transition-transform active:scale-95 disabled:opacity-50 mt-4"
-          >
-            {isSubmitting ? 'Saving to Cloud...' : 'Create & Share Challenge'}
-          </button>
-        </form>
-      </div>
-    </main>
-  );
+      <section className="px-6 py-14 md:py-20 max-w-5xl mx-auto">
+        <h2 className="text-3xl font-bold text-center mb-10 md:mb-16">How It Works</h2>
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="card text-center">
+            <div className="w-14 h-14 bg-nachas-gold/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <LogoMark className="w-7 h-7" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">Take a Challenge</h3>
+            <p className="text-white/50">Choose from curated challenges or create your own. Set your duration and pick a charity.</p>
+          </div>
+          <div className="card text-center">
+            <div className="w-14 h-14 bg-nachas-teal/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Users className="w-7 h-7 text-nachas-teal" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">Get Sponsored</h3>
+            <p className="text-white/50">Friends and family pledge per day you complete. The longer your streak, the more you raise.</p>
+          </div>
+          <div className="card text-center">
+            <div className="w-14 h-14 bg-nachas-green/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Heart className="w-7 h-7 text-nachas-green" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">Make an Impact</h3>
+            <p className="text-white/50">Complete your challenge. Funds go to your chosen charity. Inspire others to take the challenge too.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  )
 }
