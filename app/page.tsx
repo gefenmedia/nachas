@@ -1,41 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { Heart, Users, TrendingUp } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { store } from '@/lib/store'
-import { formatCents } from '@/lib/utils'
-import { getDeepLinkFromLocation, rememberReturnTo } from '@/lib/deep-link'
-import { LogoMark } from '@/components/ui/logo'
-import { useAuth } from '@/components/ui/auth-context'
-import { HomeScreen } from '@/components/ui/home-screen'
 
 export default function LandingPage() {
-  const { user, loading } = useAuth()
-  const router = useRouter()
-  const [stats, setStats] = useState({ activeChallenges: 0, totalRaised: 0, maxStreak: 0, ripples: 0 })
-  const [deepLinkChecked, setDeepLinkChecked] = useState(false)
-
-  useEffect(() => {
-    const target = getDeepLinkFromLocation(window.location)
-    if (target && window.location.pathname === '/') {
-      rememberReturnTo(target.returnTo)
-      router.replace(target.returnTo)
-      return
-    }
-    setDeepLinkChecked(true)
-  }, [router])
-
-  useEffect(() => {
-    store.init()
-    setStats(store.getStats())
-  }, [])
-
-  if (!deepLinkChecked) return <div className="flex items-center justify-center min-h-[60vh]">Loading...</div>
-
-  if (!loading && user) return <HomeScreen />
-
   return (
     <div>
       <section className="relative px-6 pt-14 pb-16 md:pt-20 md:pb-24 text-center overflow-hidden">
@@ -64,19 +32,19 @@ export default function LandingPage() {
       <section className="px-6 py-12 border-y border-white/5">
         <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           <div>
-            <div className="text-3xl font-bold text-nachas-gold">{stats.activeChallenges.toLocaleString()}</div>
+            <div className="text-3xl font-bold text-nachas-gold">42</div>
             <div className="text-white/50 text-sm mt-1">Active Challenges</div>
           </div>
           <div>
-            <div className="text-3xl font-bold text-nachas-teal">{formatCents(stats.totalRaised)}</div>
+            <div className="text-3xl font-bold text-nachas-teal">$1,250</div>
             <div className="text-white/50 text-sm mt-1">Raised</div>
           </div>
           <div>
-            <div className="text-3xl font-bold text-nachas-coral">{stats.maxStreak}</div>
+            <div className="text-3xl font-bold text-nachas-coral">40</div>
             <div className="text-white/50 text-sm mt-1">Day Max Streak</div>
           </div>
           <div>
-            <div className="text-3xl font-bold text-nachas-purple">{stats.ripples}</div>
+            <div className="text-3xl font-bold text-nachas-purple">18</div>
             <div className="text-white/50 text-sm mt-1">Ripples Created</div>
           </div>
         </div>
@@ -87,7 +55,9 @@ export default function LandingPage() {
         <div className="grid md:grid-cols-3 gap-8">
           <div className="card text-center">
             <div className="w-14 h-14 bg-nachas-gold/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <LogoMark className="w-7 h-7" />
+              <div className="w-7 h-7 rounded-full border-2 border-nachas-gold flex items-center justify-center">
+                <div className="w-2.5 h-2.5 rounded-full bg-nachas-gold" />
+              </div>
             </div>
             <h3 className="text-xl font-semibold mb-2">Take a Challenge</h3>
             <p className="text-white/50">Choose from curated challenges or create your own. Set your duration and pick a charity.</p>
@@ -106,6 +76,15 @@ export default function LandingPage() {
             <h3 className="text-xl font-semibold mb-2">Make an Impact</h3>
             <p className="text-white/50">Complete your challenge. Funds go to your chosen charity. Inspire others to take the challenge too.</p>
           </div>
+        </div>
+      </section>
+
+      <section className="px-6 py-14 md:py-20 text-center">
+        <div className="max-w-2xl mx-auto card">
+          <TrendingUp className="w-12 h-12 text-nachas-gold mx-auto mb-4" />
+          <h2 className="text-3xl font-bold mb-4">Ready to grow?</h2>
+          <p className="text-white/60 mb-8">Join thousands turning personal commitment into communal impact.</p>
+          <Link href="/new-challenge" className="btn-primary text-lg inline-block">Start Your Challenge</Link>
         </div>
       </section>
     </div>
