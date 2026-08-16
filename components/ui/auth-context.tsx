@@ -50,35 +50,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    // server-first: credentials verify against the shared backend, so any device works
-    try {
-      const r = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      })
-      if (r.ok) {
-        const { user: serverUser } = await r.json()
-        store.importServerUser(serverUser, password)
-        const full = store.findUserById(serverUser.id) || store.findUserByEmail(email)
-        if (full) {
-          store.setSession(full)
-          setUser(toAuthUser(full))
-          return true
-        }
-      }
-      if (r.status === 401) return false
-    } catch {
-      // server unreachable — fall back to local check below
+    if (!isSupabaseConfigured()) {
+      const found = store.findUserByEmail(email)
+      if (!found || found.password !== password) return false
+      store.setSession(found)
+      setUser(toAuthUser(found))
+      return true
     }
-    const found = store.findUserByEmail(email)
-    if (!found || found.password !== password) return false
-    store.setSession(found)
-    setUser(toAuthUser(found))
-    return true
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password })
+    if (authError || !authData.user) return false
+    const { data: profile } = await supabase.from('users').select('*').eq('email', email).single()
+    if (profile) {
+      store.importServerUser(profile, password)
+      store.setSession(profile)
+      setUser(toAuthUser(profile))
+      return true
+    }
+    return false
   }
 
-       const signup = async (name: string, email: string, password: string): Promise<boolean> => {
+  const signup = async (name: string, email: string, password: string): Promise<boolean> => {
     if (!isSupabaseConfigured()) {
       try {
         const user = store.createUser({ email, name, password, notificationTime: '20:00', timezone: 'America/New_York' })
@@ -106,6 +97,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(toAuthUser(user as any))
     trackEvent('signup', { name }, { userId: user.id, userName: name })
     return true
+  }
+
+  const updateAvatar = (avatarUrl: string) => {
+    if (!user) return
+    const updated = store.updateUser(user.id, { avatarUrl })
+    if (updated) {
+      setUser(toAuthUser(updated))
+      trackEvent('photo_uploaded', {}, { userId: user.id, userName: user.name })
+    }
   }
 
   const updateBio = (bio: string) => {
@@ -136,30 +136,3 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   return useContext(AuthContext)
 }
-
-  const updateAvatar = (avatarUrl: string) => {
-    if (!user) return
-    const updated = store.updateUser(user.id, { avatarUrl })
-    if (updated) {
-      setUser(toAuthUser(updated))
-      trackEvent('photo_uploaded', {}, { userId: user.id, userName: user.name })
-    }
-  }
-
-  const updateBio = (bio: string) => {
-    if (!user) return
-    const updated = store.updateUser(user.id, { bio: bio.trim() || undefined })
-    if (updated) setUser(toAuthUser(updated))
-  }
-
-  const updateProfile = (updates: { name?: string; email?: string; password?: string; bio?: string }): User | null => {
-    if (!user) return null
-    const updated = store.updateUser(user.id, updates)
-    if (updated) setUser(toAuthUser(updated))
-    return updated
-  }
-
-  const logout = () => {
-    store.setSession(null)
-    setUser(null)
-  }
