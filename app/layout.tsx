@@ -1,34 +1,40 @@
-import type { Metadata, Viewport } from 'next';
-import './globals.css';
+import type { Metadata, Viewport } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import { Navbar } from '@/components/ui/navbar'
+import { MobileTabBar } from '@/components/ui/mobile-tab-bar'
+import { AuthProvider } from '@/components/ui/auth-context'
+import { DeepLinkHandler } from '@/components/ui/deep-link-handler'
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-  title: 'Nachas - Turn Growth Into Charity',
-  description: 'Take on spiritual and physical challenges. Raise money for charity.',
+  title: 'Nachas — Turn Your Growth Into Charity',
+  description: 'Take on spiritual challenges. Get sponsored per day you complete. Raise money for charity.',
   manifest: '/manifest.json',
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'black-translucent',
-    title: 'Nachas',
-  },
-};
+  icons: { icon: '/icon-192.png', apple: '/apple-touch-icon.png' },
+  appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'Nachas' },
+}
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  userScalable: false,
-};
+  viewportFit: 'cover',
+  themeColor: '#0a1628',
+}
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="bg-slate-950 text-white min-h-screen antialiased select-none">
-        {children}
+      <body className={`${inter.variable} font-sans bg-nachas-dark text-white min-h-screen`}>
+        <AuthProvider>
+          <DeepLinkHandler />
+          <Navbar />
+          <main>{children}</main>
+          <MobileTabBar />
+        </AuthProvider>
       </body>
     </html>
-  );
+  )
 }

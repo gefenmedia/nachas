@@ -1,3 +1,49 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-nachas-dark text-white antialiased;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-nachas-gold text-nachas-dark font-semibold px-6 py-3 rounded-xl 
+           hover:bg-nachas-goldLight transition-colors disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply bg-nachas-navy text-white font-semibold px-6 py-3 rounded-xl 
+           hover:bg-opacity-80 transition-colors border border-white/10;
+  }
+  .card {
+    @apply bg-nachas-navy rounded-2xl p-6 border border-white/5;
+  }
+  .input {
+    @apply w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-base
+           text-white placeholder-white/30 focus:outline-none focus:border-nachas-gold;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button, a {
+    touch-action: manipulation;
+  }
+  input, textarea, select {
+    font-size: 16px; /* prevent iOS zoom on focus */
+  }
+}
