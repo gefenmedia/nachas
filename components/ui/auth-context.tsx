@@ -136,3 +136,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   return useContext(AuthContext)
 }
+
+  const updateAvatar = (avatarUrl: string) => {
+    if (!user) return
+    const updated = store.updateUser(user.id, { avatarUrl })
+    if (updated) {
+      setUser(toAuthUser(updated))
+      trackEvent('photo_uploaded', {}, { userId: user.id, userName: user.name })
+    }
+  }
+
+  const updateBio = (bio: string) => {
+    if (!user) return
+    const updated = store.updateUser(user.id, { bio: bio.trim() || undefined })
+    if (updated) setUser(toAuthUser(updated))
+  }
+
+  const updateProfile = (updates: { name?: string; email?: string; password?: string; bio?: string }): User | null => {
+    if (!user) return null
+    const updated = store.updateUser(user.id, updates)
+    if (updated) setUser(toAuthUser(updated))
+    return updated
+  }
+
+  const logout = () => {
+    store.setSession(null)
+    setUser(null)
+  }
