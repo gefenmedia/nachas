@@ -33,6 +33,32 @@ function toAuthUser(u: User): AuthUser {
   return { id: u.id, email: u.email, name: u.name, avatarUrl: u.avatarUrl, bio: u.bio }
 }
 
+// The `users` table uses snake_case columns (avatar_url, notification_time, created_at)
+// while the app's internal User type is camelCase — map between them explicitly.
+function fromUsersRow(row: any): any {
+  return {
+    id: row.id,
+    email: row.email,
+    name: row.name,
+    avatarUrl: row.avatar_url,
+    bio: row.bio,
+    notificationTime: row.notification_time,
+    timezone: row.timezone,
+    createdAt: row.created_at,
+  }
+}
+
+function toUsersRow(user: { id: string; email: string; name: string; notificationTime: string; timezone: string; createdAt: string }) {
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    notification_time: user.notificationTime,
+    timezone: user.timezone,
+    created_at: user.createdAt,
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [loading, setLoading] = useState(true)
@@ -62,7 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Auth succeeded — this is a real account. Try to fetch the richer profile row,
     // but don't let a missing/inaccessible 'users' table block a valid login.
     const { data: profile } = await supabase.from('users').select('*').eq('email', email).single()
-    const serverUser = profile || {
+    const serverUser = profile ? fromUsersRow(profile) : {
       id: authData.user.id,
       email: authData.user.email || email,
       name: (authData.user.user_metadata as any)?.name || email.split('@')[0],
@@ -99,7 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Best-effort profile row — if the 'users' table isn't set up yet, the account
     // still exists in Supabase Auth and the session below still works.
     try {
-      const { error: insertError } = await supabase.from('users').insert(user)
+      const { error: insertError } = await supabase.from('users').insert(toUsersRow(user))
       if (insertError) console.error('Supabase users insert error:', insertError.message)
     } catch (e) {
       console.error('Supabase users insert exception:', e)
