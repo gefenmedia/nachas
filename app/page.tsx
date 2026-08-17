@@ -114,7 +114,7 @@ export default function LandingPage() {
         <div className="max-w-2xl mx-auto card">
           <TrendingUp className="w-12 h-12 text-nachas-gold mx-auto mb-4" />
           <h2 className="text-3xl font-bold mb-4">Ready to grow?</h2>
-          <p className="text-white/60 mb-8">Join thousands turning personal commitment into communal impact.</p>
+          <p className="text-white/60 mb-8">Turn personal commitment into communal impact — one day at a time.</p>
           <Link href="/new-challenge" className="btn-primary text-lg inline-block">Start Your Challenge</Link>
         </div>
       </section>

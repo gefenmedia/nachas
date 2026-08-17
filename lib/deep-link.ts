@@ -1,3 +1,5 @@
+import { useState as useReactState, useEffect as useReactEffect } from 'react'
+
 export type DeepLinkKind = 'challenge' | 'user'
 
 export interface DeepLinkTarget {
@@ -24,6 +26,19 @@ export function locationParams(loc: Location): URLSearchParams {
   hashParts(loc.hash).params.forEach((value, key) => {
     if (!params.has(key)) params.set(key, value)
   })
+  return params
+}
+
+/**
+ * Static-export-safe replacement for next/navigation's useSearchParams(), which
+ * can return empty on first paint in `output: 'export'` builds. Reads the real
+ * URL (query + hash) on mount. Returns null until mounted so callers can wait.
+ */
+export function useUrlParams(): URLSearchParams | null {
+  const [params, setParams] = useReactState<URLSearchParams | null>(null)
+  useReactEffect(() => {
+    setParams(locationParams(window.location))
+  }, [])
   return params
 }
 

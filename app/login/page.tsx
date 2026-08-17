@@ -1,20 +1,25 @@
 'use client'
 
-import { Suspense, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense, useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/components/ui/auth-context'
 import { LogoMark } from '@/components/ui/logo'
-import { consumeReturnTo, safeInternalPath } from '@/lib/deep-link'
+import { consumeReturnTo, safeInternalPath, locationParams } from '@/lib/deep-link'
 
 function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [nextParam, setNextParam] = useState('')
   const router = useRouter()
-  const searchParams = useSearchParams()
   const { login } = useAuth()
-  const nextParam = safeInternalPath(searchParams.get('next') || searchParams.get('returnTo'))
+
+  useEffect(() => {
+    const p = locationParams(window.location)
+    setNextParam(safeInternalPath(p.get('next') || p.get('returnTo')) || '')
+  }, [])
+
   const signupHref = nextParam ? `/signup?next=${encodeURIComponent(nextParam)}` : '/signup'
 
   async function handleSubmit(e: React.FormEvent) {

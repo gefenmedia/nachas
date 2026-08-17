@@ -1,12 +1,12 @@
 'use client'
 
 import { Suspense, useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/components/ui/auth-context'
 import { LogoMark } from '@/components/ui/logo'
 import { store } from '@/lib/store'
-import { canonicalDeepLink, consumeReturnTo, safeInternalPath } from '@/lib/deep-link'
+import { canonicalDeepLink, consumeReturnTo, safeInternalPath, locationParams } from '@/lib/deep-link'
 
 function SignupForm() {
   const [name, setName] = useState('')
@@ -14,22 +14,26 @@ function SignupForm() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const router = useRouter()
-  const searchParams = useSearchParams()
   const { signup } = useAuth()
 
-  const fromId = searchParams.get('from')
-  const nextParam = safeInternalPath(searchParams.get('next') || searchParams.get('returnTo'))
-  const effectiveNext = nextParam || (fromId ? canonicalDeepLink('challenge', fromId) : '')
-  const loginHref = effectiveNext ? `/login?next=${encodeURIComponent(effectiveNext)}` : '/login'
+  const [fromId, setFromId] = useState<string | null>(null)
+  const [nextParam, setNextParam] = useState('')
   const [parentName, setParentName] = useState('')
 
   useEffect(() => {
+    const p = locationParams(window.location)
+    const f = p.get('from')
+    setFromId(f)
+    setNextParam(safeInternalPath(p.get('next') || p.get('returnTo')) || '')
     store.init()
-    if (fromId) {
-      const parent = store.getChallengeById(fromId)
+    if (f) {
+      const parent = store.getChallengeById(f)
       if (parent?.user?.name) setParentName(parent.user.name)
     }
-  }, [fromId])
+  }, [])
+
+  const effectiveNext = nextParam || (fromId ? canonicalDeepLink('challenge', fromId) : '')
+  const loginHref = effectiveNext ? `/login?next=${encodeURIComponent(effectiveNext)}` : '/login'
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()

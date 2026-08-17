@@ -24,6 +24,7 @@ export function HomeScreen() {
   const [activity, setActivity] = useState<ActivityItem[]>([])
   const [circle, setCircle] = useState<Circle | null>(null)
   const [loading, setLoading] = useState(true)
+  const [toast, setToast] = useState('')
 
   function loadAll(userId: string) {
     setChallenges(store.getUserChallenges(userId))
@@ -42,7 +43,18 @@ export function HomeScreen() {
     }
   }, [user])
 
-  if (!user || loading) return <div className="flex items-center justify-center min-h-[60vh]">Loading...</div>
+  if (!user || loading) return (
+    <div className="px-6 py-8 max-w-2xl mx-auto space-y-6 animate-pulse">
+      <div className="h-14 rounded-2xl bg-white/5" />
+      <div className="grid grid-cols-3 gap-3">
+        <div className="h-20 rounded-2xl bg-white/5" />
+        <div className="h-20 rounded-2xl bg-white/5" />
+        <div className="h-20 rounded-2xl bg-white/5" />
+      </div>
+      <div className="h-48 rounded-2xl bg-white/5" />
+      <div className="h-32 rounded-2xl bg-white/5" />
+    </div>
+  )
 
   const active = challenges.filter(c => c.status === 'active')
   const today = new Date().toISOString().slice(0, 10)
@@ -67,7 +79,8 @@ export function HomeScreen() {
       })
       loadAll(user!.id)
     } catch (e: any) {
-      alert(e.message)
+      setToast(e?.message || 'Could not check in. Please try again.')
+      setTimeout(() => setToast(''), 3500)
     }
   }
 
@@ -111,11 +124,25 @@ export function HomeScreen() {
     return (
       <div className="px-6 py-8 max-w-2xl mx-auto space-y-6">
         {header}
-        <div className="px-6 py-14 text-center card">
-          <LogoMark className="w-16 h-16 mx-auto mb-6 block" />
-          <h2 className="text-2xl font-bold mb-4">No Challenges Yet</h2>
-          <p className="text-white/60 mb-8">Start your first challenge and begin raising money for charity.</p>
-          <Link href="/new-challenge" className="btn-primary">Take a Challenge</Link>
+        <div className="px-6 py-12 text-center card">
+          <LogoMark className="w-16 h-16 mx-auto mb-5 block" />
+          <h2 className="text-2xl font-bold mb-2">Start your first challenge</h2>
+          <p className="text-white/60 mb-8 max-w-sm mx-auto">Commit to something meaningful. Get sponsored for every day you show up. Turn your growth into tzedakah.</p>
+          <div className="space-y-3 text-left max-w-sm mx-auto mb-8">
+            <div className="flex items-start gap-3">
+              <span className="w-6 h-6 rounded-full bg-nachas-gold/15 text-nachas-gold text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+              <p className="text-sm text-white/70"><span className="text-white font-medium">Pick a challenge</span> — like 30 days of Tefillin, or your own.</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="w-6 h-6 rounded-full bg-nachas-teal/15 text-nachas-teal text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+              <p className="text-sm text-white/70"><span className="text-white font-medium">Share it</span> — friends pledge per day you complete.</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="w-6 h-6 rounded-full bg-nachas-green/15 text-nachas-green text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+              <p className="text-sm text-white/70"><span className="text-white font-medium">Check in daily</span> — build your streak, raise real money.</p>
+            </div>
+          </div>
+          <Link href="/new-challenge" className="btn-primary inline-block px-8">Take a Challenge</Link>
         </div>
       </div>
     )
@@ -123,6 +150,11 @@ export function HomeScreen() {
 
   return (
     <div className="px-6 py-8 max-w-2xl mx-auto space-y-6">
+      {toast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 rounded-xl bg-nachas-coral/90 text-white text-sm px-4 py-2 shadow-lg">
+          {toast}
+        </div>
+      )}
       {/* Active challenge bar — the first thing seen on open */}
       {firstActive && (
         <Link

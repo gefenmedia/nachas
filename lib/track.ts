@@ -1,5 +1,7 @@
-// Beta activity tracker — every meaningful user action, logged locally (no backend).
-// Powers the investor dashboard (/admin) and one-tap export/merge across devices.
+// Beta activity tracker — every meaningful user action, logged locally AND to
+// Supabase so the /admin dashboard reflects all devices in production.
+
+import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 
 export interface TrackEvent {
   id: string
@@ -65,9 +67,29 @@ export function syncToServer() {
   } catch {}
 }
 
-// Global (all-devices) event log from the server; null when the app is served statically
+// Global (all-devices) event log. Reads from Supabase (the real backend); falls
+// back to the legacy server, then null (which makes /admin use local events).
 export async function fetchGlobalEvents(): Promise<TrackEvent[] | null> {
   if (typeof window === 'undefined') return null
+  // Supabase first
+  if (isSupabaseConfigured()) {
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .order('ts', { ascending: true })
+        .limit(5000)
+      if (!error && Array.isArray(data)) {
+        return data.map((r: any) => ({
+          id: r.id, type: r.type, ts: r.ts,
+          userId: r.user_id || undefined, userName: r.user_name || undefined,
+          meta: r.meta || {},
+        }))
+      }
+    } catch {
+      // fall through to legacy server
+    }
+  }
   try {
     const r = await fetch(`${API_BASE}/api/events`, { cache: 'no-store' })
     if (!r.ok) return null
@@ -93,10 +115,18 @@ export function trackEvent(
       userName = userName || session?.name
     }
     const events = getEvents()
-    events.push({ id: eventId(), type, ts: new Date().toISOString(), userId, userName, meta })
+    const evt = { id: eventId(), type, ts: new Date().toISOString(), userId, userName, meta }
+    events.push(evt)
     if (events.length > MAX_EVENTS) events.splice(0, events.length - MAX_EVENTS)
     localStorage.setItem(KEY, JSON.stringify(events))
     beacon(events[events.length - 1])
+    // Cloud analytics — fire and forget, never blocks or throws
+    if (isSupabaseConfigured()) {
+      supabase.from('events').insert([{
+        id: evt.id, type: evt.type, ts: evt.ts,
+        user_id: evt.userId || null, user_name: evt.userName || null, meta: evt.meta || {},
+      }]).then(undefined, () => {})
+    }
   } catch {
     // tracking must never break the app
   }

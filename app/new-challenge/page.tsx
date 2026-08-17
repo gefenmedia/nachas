@@ -1,12 +1,12 @@
 'use client'
 
 import { useAuth } from '@/components/ui/auth-context'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { ChevronRight, ChevronLeft, Sparkles } from 'lucide-react'
 import { store, Charity } from '@/lib/store'
 import { challengeDisplayName } from '@/lib/utils'
-import { currentReturnTo, rememberReturnTo } from '@/lib/deep-link'
+import { currentReturnTo, rememberReturnTo, locationParams } from '@/lib/deep-link'
 
 const CURATED = [
   { key: 'tefillin_30', name: 'Tefillin', icon: '📿', defaultDays: 30, category: 'daily_mitzvah' },
@@ -19,8 +19,7 @@ const CURATED = [
 function NewChallengeForm() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const fromId = searchParams.get('from') || ''
+  const [fromId, setFromId] = useState('')
   const [step, setStep] = useState(1)
   const [charities, setCharities] = useState<Charity[]>([])
   const [form, setForm] = useState({
@@ -34,8 +33,16 @@ function NewChallengeForm() {
     goalAmountCents: 50000,
     dedication: '',
     personalNote: '',
+    isPublic: true,
   })
   const continueRef = useRef<HTMLButtonElement>(null)
+  const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+
+  // Read ?from= directly from the URL (static-export safe)
+  useEffect(() => {
+    setFromId(locationParams(window.location).get('from') || '')
+  }, [])
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -80,9 +87,11 @@ function NewChallengeForm() {
 
   async function handleSubmit() {
     if (!user) return
-    if (form.durationDays < 1) { alert('Duration must be at least 1 day'); return }
-    if (form.goalAmountCents <= 0) { alert('Please set a fundraising goal greater than $0'); return }
-    if (form.type === 'custom' && !form.customName.trim()) { alert('Please give your challenge a name'); return }
+    setError('')
+    if (form.durationDays < 1) { setError('Duration must be at least 1 day'); return }
+    if (form.goalAmountCents <= 0) { setError('Please set a fundraising goal greater than $0'); return }
+    if (form.type === 'custom' && !form.customName.trim()) { setError('Please give your challenge a name'); return }
+    setSubmitting(true)
     try {
       const endDate = new Date()
       endDate.setDate(endDate.getDate() + form.durationDays)
@@ -101,11 +110,12 @@ function NewChallengeForm() {
         startDate: new Date().toISOString(),
         endDate: endDate.toISOString(),
         parentChallengeId: fromId || undefined,
-        isPublic: true,
+        isPublic: form.isPublic,
       })
       router.push(`/challenge?id=${challenge.id}&new=1`)
     } catch (e: any) {
-      alert(e.message)
+      setError(e?.message || 'Something went wrong. Please try again.')
+      setSubmitting(false)
     }
   }
 
@@ -198,8 +208,24 @@ function NewChallengeForm() {
           <div className="flex items-center gap-2"><button onClick={() => setStep(4)} className="text-white/40 hover:text-white"><ChevronLeft className="w-5 h-5" /></button><h1 className="text-2xl font-bold">Make it yours</h1></div>
           <div><label className="block text-sm text-white/60 mb-1">Dedication (optional)</label><input className="input" placeholder="L&apos;ilui nishmas... or refuah sheleimah for..." value={form.dedication} onChange={e => setForm({...form, dedication: e.target.value})} /></div>
           <div><label className="block text-sm text-white/60 mb-1">Why this matters to you</label><textarea className="input" rows={3} placeholder="Share your personal motivation..." value={form.personalNote} onChange={e => setForm({...form, personalNote: e.target.value})} /></div>
+          <div className="flex items-center justify-between card bg-white/5">
+            <div className="pr-4">
+              <div className="font-medium text-sm">{form.isPublic ? 'Public challenge' : 'Private challenge'}</div>
+              <div className="text-xs text-white/40 mt-0.5">{form.isPublic ? 'Shows on the leaderboard and can be found by others.' : 'Only people you share the link with can see it. Stays off the leaderboard.'}</div>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={form.isPublic}
+              onClick={() => setForm({ ...form, isPublic: !form.isPublic })}
+              className={`relative w-12 h-7 rounded-full transition shrink-0 ${form.isPublic ? 'bg-nachas-gold' : 'bg-white/20'}`}
+            >
+              <span className={`absolute top-1 left-1 w-5 h-5 rounded-full bg-white transition-transform ${form.isPublic ? 'translate-x-5' : ''}`} />
+            </button>
+          </div>
           <div className="card bg-white/5"><div className="text-sm text-white/40 mb-2">Preview</div><div className="font-semibold">{form.customName || selected?.name || 'Your Challenge'}</div><div className="text-sm text-white/60">{form.durationDays} days for {charities.find(c=>c.id===form.charityId)?.name}</div>{form.dedication && <div className="text-sm text-nachas-gold mt-2 italic">&quot;{form.dedication}&quot;</div>}</div>
-          <button onClick={handleSubmit} className="btn-primary w-full text-lg">Launch My Challenge 🚀</button>
+          {error && <div className="card bg-nachas-coral/10 border-nachas-coral/30 text-nachas-coral text-sm">{error}</div>}
+          <button onClick={handleSubmit} disabled={submitting} className="btn-primary w-full text-lg disabled:opacity-60">{submitting ? 'Launching…' : 'Launch My Challenge 🚀'}</button>
         </div>
       )}
     </div>

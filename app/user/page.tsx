@@ -1,7 +1,6 @@
 'use client'
 
 import { Suspense, useEffect, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Award, Check, Copy, Heart, PartyPopper, CircleDot, UserPlus, Share2 } from 'lucide-react'
 import { store, Challenge, User } from '@/lib/store'
@@ -10,18 +9,22 @@ import { BadgeIcon } from '@/components/ui/icons'
 import { useAuth } from '@/components/ui/auth-context'
 import { formatCents, challengeDisplayName } from '@/lib/utils'
 import { userUrl } from '@/lib/share'
-import { canonicalDeepLink, getDeepLinkFromLocation, locationParams } from '@/lib/deep-link'
+import { canonicalDeepLink, getDeepLinkFromLocation, locationParams, useUrlParams } from '@/lib/deep-link'
 
 /**
  * Nachas Home Page (Visitor View) — the public, shareable profile for any user.
  * Every profile image across the app routes here: /user?id=<userId>
  */
 function UserContent() {
-  const searchParams = useSearchParams()
   const { user: me } = useAuth()
-  const deepLink = typeof window !== 'undefined' ? getDeepLinkFromLocation(window.location) : null
-  const urlParams = typeof window !== 'undefined' ? locationParams(window.location) : new URLSearchParams()
-  const id = searchParams.get('id') || (deepLink && deepLink.kind === 'user' ? deepLink.id : '') || urlParams.get('id') || ''
+  const urlParams = useUrlParams()
+  const [id, setId] = useState('')
+
+  useEffect(() => {
+    if (!urlParams) return
+    const deepLink = getDeepLinkFromLocation(window.location)
+    setId(urlParams.get('id') || (deepLink && deepLink.kind === 'user' ? deepLink.id : '') || '')
+  }, [urlParams])
   const [profile, setProfile] = useState<User | null>(null)
   const [challenges, setChallenges] = useState<Challenge[]>([])
   const [followerCount, setFollowerCount] = useState(0)
@@ -32,25 +35,33 @@ function UserContent() {
   const [loaded, setLoaded] = useState(false)
 
   function loadProfile() {
-    if (!id) { setLoaded(true); return }
+    if (!id) return
     const u = store.findUserById(id)
     setProfile(u || null)
     if (u) {
       setChallenges(store.getUserChallenges(u.id))
       setFollowerCount(store.getFollowerCount(u.id))
       if (me) setFollowing(store.isFollowing(u.id, me.id))
+      setLoaded(true)
+    } else {
+      // Not found locally — the profile may live on another device. Pull from
+      // the cloud once; the nachas-synced listener re-runs loadProfile after.
+      store.syncFromServer().then(() => {
+        if (!store.findUserById(id)) setLoaded(true)
+      })
     }
-    setLoaded(true)
   }
 
   useEffect(() => {
+    if (!urlParams) return       // wait until the URL has actually been read
+    if (!id) { setLoaded(true); return }  // URL read, but genuinely no id
     store.init()
     loadProfile()
     // profile may live on another device — re-render once server state lands
     const onSync = () => loadProfile()
     window.addEventListener('nachas-synced', onSync)
     return () => window.removeEventListener('nachas-synced', onSync)
-  }, [id, me])
+  }, [id, me, urlParams])
 
   function doFollow(name: string, followerUserId?: string) {
     if (!profile) return

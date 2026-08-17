@@ -32,6 +32,8 @@ function ChallengeContent() {
   const [donation, setDonation] = useState({ donorName: '', donorEmail: '', type: 'per_day' as 'per_day' | 'flat', perDayAmount: 1, bonusAmount: 10, flatAmount: 50, message: '' })
   const [showDonate, setShowDonate] = useState(false)
   const [justSponsored, setJustSponsored] = useState(false)
+  const [donateError, setDonateError] = useState('')
+  const [toast, setToast] = useState('')
   const [justCheckedIn, setJustCheckedIn] = useState(false)
   const [following, setFollowing] = useState(false)
   const [askFollowName, setAskFollowName] = useState(false)
@@ -121,7 +123,8 @@ function ChallengeContent() {
       setJustCheckedIn(true)
       if (dayNumber === 7 || dayNumber === 30) confetti({ particleCount: 60, spread: 60 })
     } catch (e: any) {
-      alert(e.message)
+      setToast(e?.message || 'Could not check in. Please try again.')
+      setTimeout(() => setToast(''), 3500)
     }
     refresh()
   }
@@ -140,22 +143,28 @@ function ChallengeContent() {
 
   function handleDonate(e: React.FormEvent) {
     e.preventDefault()
-    if (donation.type === 'per_day' && donation.perDayAmount <= 0) { alert('Please enter a per-day amount greater than 0'); return }
-    if (donation.type === 'flat' && donation.flatAmount <= 0) { alert('Please enter a gift amount greater than 0'); return }
-    store.createDonation({
-      challengeId: id,
-      donorName: donation.donorName,
-      donorEmail: donation.donorEmail,
-      donorMessage: donation.message || undefined,
-      type: donation.type,
-      perDayAmountCents: donation.type === 'per_day' ? donation.perDayAmount * 100 : undefined,
-      bonusAmountCents: donation.type === 'per_day' ? donation.bonusAmount * 100 : 0,
-      flatAmountCents: donation.type === 'flat' ? donation.flatAmount * 100 : undefined,
-      status: 'pledged',
-      totalChargedCents: 0,
-      platformFeeCents: 0,
-      netToCharityCents: 0,
-    })
+    setDonateError('')
+    if (donation.type === 'per_day' && donation.perDayAmount <= 0) { setDonateError('Please enter a per-day amount greater than 0'); return }
+    if (donation.type === 'flat' && donation.flatAmount <= 0) { setDonateError('Please enter a gift amount greater than 0'); return }
+    try {
+      store.createDonation({
+        challengeId: id,
+        donorName: donation.donorName,
+        donorEmail: donation.donorEmail,
+        donorMessage: donation.message || undefined,
+        type: donation.type,
+        perDayAmountCents: donation.type === 'per_day' ? donation.perDayAmount * 100 : undefined,
+        bonusAmountCents: donation.type === 'per_day' ? donation.bonusAmount * 100 : 0,
+        flatAmountCents: donation.type === 'flat' ? donation.flatAmount * 100 : undefined,
+        status: 'pledged',
+        totalChargedCents: 0,
+        platformFeeCents: 0,
+        netToCharityCents: 0,
+      })
+    } catch (err: any) {
+      setDonateError(err?.message || 'Could not record your pledge. Please try again.')
+      return
+    }
     setShowDonate(false)
     setJustSponsored(true)
     refresh()
@@ -193,34 +202,36 @@ function ChallengeContent() {
     refresh()
   }
 
-  function shareStreakImage() {
+  function shareStreakToWhatsApp() {
     if (!challenge) return
-    trackEvent('share_clicked', { channel: 'image_streak_status' })
+    const text = `Day ${recordedDays(challenge)} of ${challenge.durationDays} — ${challenge.currentStreak}-day streak for ${challenge.charity?.name}! ${pageUrl()}`
+    shareMessage({ message: text, title: `${challengeDisplayName(challenge)} on Nachas`, channel: 'whatsapp_status' })
+  }
+
+  function downloadStreakImage() {
+    if (!challenge) return
+    trackEvent('share_clicked', { channel: 'image_streak_download' })
     downloadShareImage({
       emoji: getStreakEmoji(challenge.currentStreak),
       title: `Day ${recordedDays(challenge)} of ${challenge.durationDays} — ${challenge.currentStreak}-day streak!`,
       lines: [`${challenge.user?.name} is doing ${challenge.durationDays} days of ${challengeDisplayName(challenge)} for ${challenge.charity?.name}`],
       filename: 'nachas-streak.png',
     })
-    // WhatsApp has no direct "post to Status" URL — download the image and open WhatsApp so it's one tap away
-    const text = `Day ${recordedDays(challenge)} of ${challenge.durationDays} — ${challenge.currentStreak}-day streak for ${challenge.charity?.name}! ${pageUrl()}`
-    shareMessage({ message: text, title: `${challengeDisplayName(challenge)} on Nachas`, channel: 'whatsapp_status' })
+    setToast('Image saved — post it to your WhatsApp status')
+    setTimeout(() => setToast(''), 3500)
   }
 
   function shareSponsorImage() {
     if (!challenge) return
-    trackEvent('share_clicked', { channel: 'image_sponsor' })
+    trackEvent('share_clicked', { channel: 'image_sponsor_download' })
     downloadShareImage({
       emoji: '💛',
       title: `I sponsored ${challenge.user?.name}'s ${challengeDisplayName(challenge)} challenge!`,
       lines: [`Supporting ${challenge.charity?.name} — join in at the link`],
       filename: 'nachas-sponsor.png',
     })
-    shareMessage({
-      message: `I sponsored ${challenge.user?.name}'s ${challengeDisplayName(challenge)} challenge for ${challenge.charity?.name}. Join in: ${pageUrl()}`,
-      title: `${challengeDisplayName(challenge)} on Nachas`,
-      channel: 'image_sponsor_link',
-    })
+    setToast('Image saved to your device')
+    setTimeout(() => setToast(''), 3500)
   }
 
   function waShare(text: string, channel: string) {
@@ -317,13 +328,23 @@ function ChallengeContent() {
   // ---------- Standard challenge page ----------
   return (
     <div className="px-6 py-8 max-w-2xl mx-auto space-y-6">
+      {toast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 rounded-xl bg-nachas-coral/90 text-white text-sm px-4 py-2 shadow-lg">
+          {toast}
+        </div>
+      )}
 
       {/* Page 3: check-in button at the very top (owner, active) */}
       {isOwner && !isComplete && (
         justCheckedIn ? (
-          <button onClick={shareStreakImage} className="btn-primary w-full text-lg py-4 flex items-center justify-center gap-2">
-            <ImageDown className="w-5 h-5" /> Share to WhatsApp status
-          </button>
+          <div className="space-y-2">
+            <button onClick={shareStreakToWhatsApp} className="btn-primary w-full text-lg py-4 flex items-center justify-center gap-2">
+              <Share2 className="w-5 h-5" /> Share to WhatsApp
+            </button>
+            <button onClick={downloadStreakImage} className="w-full text-sm text-white/50 hover:text-white/80 flex items-center justify-center gap-1.5 py-1 transition">
+              <ImageDown className="w-4 h-4" /> Or save an image for your status
+            </button>
+          </div>
         ) : (
           <button onClick={handleCheckIn} className="btn-primary w-full text-lg py-4">
             Check in: Day {todayDay}
@@ -439,8 +460,24 @@ function ChallengeContent() {
         <div className="text-3xl font-bold mb-1">
           {formatCents(challenge.totalRaisedCents)} <span className="text-base font-medium text-white/50">for {challenge.charity?.name}</span>
         </div>
-        <div className="text-white/40 text-sm mb-3">raised of {formatCents(challenge.goalAmountCents)} goal</div>
-        <div className="h-2 bg-white/5 rounded-full overflow-hidden mb-4"><div className="h-full bg-nachas-teal rounded-full" style={{ width: `${Math.min(100, (challenge.totalRaisedCents/challenge.goalAmountCents)*100)}%` }} /></div>
+        {(() => {
+          const potential = challenge.potentialRaisedCents ?? challenge.totalRaisedCents
+          const onTheTable = Math.max(0, potential - challenge.totalRaisedCents)
+          return (
+            <div className="text-white/40 text-sm mb-3">
+              {challenge.status === 'completed'
+                ? <>raised of {formatCents(challenge.goalAmountCents)} goal</>
+                : onTheTable > 0
+                  ? <><span className="text-nachas-gold font-medium">{formatCents(challenge.totalRaisedCents)} earned</span> · {formatCents(onTheTable)} still on the table</>
+                  : <>raised of {formatCents(challenge.goalAmountCents)} goal</>}
+            </div>
+          )
+        })()}
+        <div className="h-2 bg-white/5 rounded-full overflow-hidden mb-4 relative">
+          {/* faint potential bar behind the solid earned bar */}
+          <div className="absolute inset-0 bg-nachas-teal/20 rounded-full" style={{ width: `${Math.min(100, ((challenge.potentialRaisedCents ?? challenge.totalRaisedCents)/challenge.goalAmountCents)*100)}%` }} />
+          <div className="h-full bg-nachas-teal rounded-full relative" style={{ width: `${Math.min(100, (challenge.totalRaisedCents/challenge.goalAmountCents)*100)}%` }} />
+        </div>
         {donations.length > 0 && (
           <div className="flex items-center gap-1 mb-4">
             {donations.slice(-6).map(d => (
@@ -463,8 +500,11 @@ function ChallengeContent() {
       {justSponsored && (
         <div className="card text-center border-nachas-teal/30 bg-nachas-teal/5">
           <h3 className="font-semibold text-nachas-teal mb-2">Thank you for sponsoring {challenge.user?.name}!</h3>
-          <p className="text-white/50 text-sm mb-4">Your pledge is recorded. (This demo does not process payments.)</p>
-          <button onClick={shareSponsorImage} className="btn-secondary text-sm flex items-center gap-2 mx-auto"><ImageDown className="w-4 h-4" /> Share that you sponsored</button>
+          <p className="text-white/50 text-sm mb-4">Your pledge is recorded. You'll be able to complete payment when {challenge.user?.name?.split(' ')[0] || 'they'} finishes.</p>
+          <div className="space-y-2">
+            <button onClick={() => waShare(`I just sponsored ${challenge.user?.name}'s ${challengeDisplayName(challenge)} challenge for ${challenge.charity?.name}. Join in: ${pageUrl()}`, 'whatsapp_sponsored')} className="btn-secondary text-sm flex items-center gap-2 mx-auto"><Share2 className="w-4 h-4" /> Share that you sponsored</button>
+            <button onClick={shareSponsorImage} className="w-full text-xs text-white/40 hover:text-white/70 flex items-center justify-center gap-1.5 transition"><ImageDown className="w-3.5 h-3.5" /> Or save an image</button>
+          </div>
         </div>
       )}
 
@@ -500,6 +540,7 @@ function ChallengeContent() {
             <div><label className="block text-sm text-white/60 mb-1">Your name</label><input className="input" value={donation.donorName} required onChange={e=>setDonation({...donation, donorName: e.target.value})} /></div>
             <div><label className="block text-sm text-white/60 mb-1">Email</label><input type="email" className="input" value={donation.donorEmail} required onChange={e=>setDonation({...donation, donorEmail: e.target.value})} /></div>
             <div><label className="block text-sm text-white/60 mb-1">Message (optional)</label><textarea className="input" rows={2} value={donation.message} onChange={e=>setDonation({...donation, message: e.target.value})} /></div>
+            {donateError && <div className="rounded-xl bg-nachas-coral/10 border border-nachas-coral/30 text-nachas-coral text-sm p-3">{donateError}</div>}
             <button type="submit" className="btn-primary w-full">Confirm Pledge</button>
           </form>
         </div>

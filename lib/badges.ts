@@ -9,18 +9,18 @@ export interface Badge {
 
 export const BADGES: Badge[] = [
   { key: 'first_steps', emoji: '🏁', name: 'First Steps', description: 'Complete Day 1' },
-  { key: 'week_warrior', emoji: '🔥', name: 'Week Warrior', description: '7-day streak' },
-  { key: 'month_master', emoji: '💪', name: 'Month Master', description: '30-day streak' },
-  { key: 'ninety_noble', emoji: '👑', name: 'Ninety Noble', description: '90-day streak' },
+  { key: 'week_warrior', emoji: '🔥', name: 'Week Strong', description: '7-day streak' },
+  { key: 'month_master', emoji: '💪', name: 'Month Strong', description: '30-day streak' },
+  { key: 'ninety_noble', emoji: '👑', name: 'Ninety Days', description: '90-day streak' },
   { key: 'perfect_run', emoji: '✨', name: 'Perfect Run', description: 'Complete a challenge with zero missed days' },
-  { key: 'first_backer', emoji: '💰', name: 'First Backer', description: 'Get your first sponsor' },
-  { key: 'crowd_favorite', emoji: '🙌', name: 'Crowd Favorite', description: 'Get 5+ sponsors' },
+  { key: 'first_backer', emoji: '💛', name: 'First Supporter', description: 'Get your first sponsor' },
+  { key: 'crowd_favorite', emoji: '🙌', name: 'Well Supported', description: 'Get 5+ sponsors' },
   { key: 'challenge_accepted', emoji: '🎯', name: 'Challenge Accepted', description: 'A friend accepted your challenge invite' },
   { key: 'ripple_starter', emoji: '🌊', name: 'Ripple Starter', description: '1 person took your challenge because of you' },
-  { key: 'ripple_effect', emoji: '🌊🌊', name: 'Ripple Effect', description: '5+ people took your challenge because of you' },
-  { key: 'fundraiser', emoji: '💵', name: 'Fundraiser', description: 'Raise $100' },
-  { key: 'changemaker', emoji: '💵💵', name: 'Changemaker', description: 'Raise $500' },
-  { key: 'mitzvah_millionaire', emoji: '💵💵💵', name: 'Mitzvah Millionaire', description: 'Raise $1,000' },
+  { key: 'ripple_effect', emoji: '🌊', name: 'Wave Maker', description: '5+ people took your challenge because of you' },
+  { key: 'fundraiser', emoji: '🌱', name: 'Giver', description: 'Raise $100 for charity' },
+  { key: 'changemaker', emoji: '🌿', name: 'Changemaker', description: 'Raise $500 for charity' },
+  { key: 'mitzvah_millionaire', emoji: '🌳', name: 'Pillar of Giving', description: 'Raise $1,000 for charity' },
 ]
 
 export function getEarnedBadgeKeys(challenges: Challenge[]): Set<string> {

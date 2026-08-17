@@ -99,6 +99,7 @@ export interface Challenge {
   longestStreak: number
   daysCompleted: number
   totalRaisedCents: number
+  potentialRaisedCents?: number
   donorCount: number
   rippleCount: number
   followerCount: number
@@ -144,6 +145,80 @@ function setItem<T>(key: string, value: T) {
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+}
+
+/** UTC calendar day (YYYY-MM-DD) for a date/timestamp. */
+function dayKey(d: string | Date): string {
+  return new Date(d).toISOString().slice(0, 10)
+}
+
+/** Whole-day difference between two YYYY-MM-DD keys. */
+function daysBetween(a: string, b: string): number {
+  return Math.round((Date.parse(b) - Date.parse(a)) / 86400000)
+}
+
+/**
+ * Calendar-aware streak math. A streak is consecutive calendar days with a
+ * completed check-in. A gap of 2+ calendar days breaks it. daysCompleted counts
+ * distinct completed days (not raw check-in rows).
+ */
+function computeStreaks(checkIns: { completed: boolean; checkInDate?: string; createdAt?: string }[]) {
+  const completedDays = Array.from(new Set(
+    checkIns.filter(ci => ci.completed).map(ci => dayKey(ci.checkInDate || ci.createdAt || new Date().toISOString()))
+  )).sort()
+
+  const daysCompleted = completedDays.length
+  let longestStreak = 0, run = 0
+  for (let i = 0; i < completedDays.length; i++) {
+    if (i > 0 && daysBetween(completedDays[i - 1], completedDays[i]) === 1) run++
+    else run = 1
+    longestStreak = Math.max(longestStreak, run)
+  }
+
+  // Current streak: only counts if the most recent completed day is today or
+  // yesterday (otherwise the streak has lapsed).
+  let currentStreak = 0
+  if (completedDays.length > 0) {
+    const today = dayKey(new Date())
+    const last = completedDays[completedDays.length - 1]
+    const gapFromToday = daysBetween(last, today)
+    if (gapFromToday <= 1) {
+      currentStreak = 1
+      for (let i = completedDays.length - 1; i > 0; i--) {
+        if (daysBetween(completedDays[i - 1], completedDays[i]) === 1) currentStreak++
+        else break
+      }
+    }
+  }
+  return { daysCompleted, longestStreak, currentStreak, completedDays }
+}
+
+/**
+ * Earned vs potential fundraising, in cents.
+ * - earned: what the completed days have actually generated (this is the honest
+ *   "raised" figure). Per-day pledges pay per completed day; the completion bonus
+ *   only counts once the whole challenge is finished. Flat gifts count immediately.
+ * - potential: the maximum if every remaining day is completed.
+ */
+function computeEarnings(
+  donations: { type: string; perDayAmountCents?: number; bonusAmountCents?: number; flatAmountCents?: number }[],
+  daysCompleted: number,
+  durationDays: number,
+) {
+  let earned = 0, potential = 0
+  const finished = daysCompleted >= durationDays
+  for (const d of donations) {
+    if (d.type === 'flat') {
+      earned += d.flatAmountCents || 0
+      potential += d.flatAmountCents || 0
+    } else {
+      const perDay = d.perDayAmountCents || 0
+      const bonus = d.bonusAmountCents || 0
+      earned += perDay * Math.min(daysCompleted, durationDays) + (finished ? bonus : 0)
+      potential += perDay * durationDays + bonus
+    }
+  }
+  return { earned, potential }
 }
 
 // --- Seed Data ---
@@ -405,29 +480,36 @@ export const store = {
         for (const rec of cloudChallenges) {
           if (!rec || !rec.id) continue
           const existing = byId.get(rec.id)
+          const isOwn = existing && existing.userId === rec.user_id
           byId.set(rec.id, {
+            // Start from any existing local record (preserves owner-only fields
+            // like checkIns detail), then let authoritative cloud fields win.
+            ...(existing || {}),
             id: rec.id,
             userId: rec.user_id || existing?.userId || '',
             creatorNameFallback: rec.creator_name || existing?.creatorNameFallback,
             charityId: existing?.charityId || 'charity-1',
-            type: existing?.type || 'custom',
-            customName: rec.title,
-            customDescription: rec.description,
-            durationDays: existing?.durationDays || 30,
-            goalAmountCents: (rec.goal_amount || 0) * 100,
+            type: existing?.type || (rec.parent_challenge_id ? 'custom' : 'custom'),
+            customName: existing?.customName || rec.title,
+            customDescription: existing?.customDescription ?? rec.description,
+            durationDays: rec.duration_days || existing?.durationDays || 30,
+            goalAmountCents: existing?.goalAmountCents ?? (rec.goal_amount || 0) * 100,
             status: existing?.status || 'active',
-            startDate: rec.created_at || new Date().toISOString(),
+            startDate: existing?.startDate || rec.created_at || new Date().toISOString(),
             endDate: existing?.endDate || new Date().toISOString(),
-            currentStreak: existing?.currentStreak ?? 1,
-            longestStreak: existing?.longestStreak ?? 1,
-            daysCompleted: existing?.daysCompleted ?? 1,
-            totalRaisedCents: (rec.raised_amount || 0) * 100,
+            // Ripple attribution now survives cross-device — the core viral metric
+            parentChallengeId: rec.parent_challenge_id || existing?.parentChallengeId,
+            isPublic: typeof rec.is_public === 'boolean' ? rec.is_public : (existing?.isPublic ?? true),
+            // For challenges I don't own, trust the cloud's raised total; for my own,
+            // keep my locally-computed value (recomputed below from merged donations)
+            totalRaisedCents: isOwn ? (existing?.totalRaisedCents ?? 0) : (rec.raised_amount || 0) * 100,
+            currentStreak: existing?.currentStreak ?? 0,
+            longestStreak: existing?.longestStreak ?? 0,
+            daysCompleted: existing?.daysCompleted ?? 0,
             donorCount: existing?.donorCount ?? 0,
             rippleCount: existing?.rippleCount ?? 0,
             followerCount: existing?.followerCount ?? 0,
-            isPublic: existing?.isPublic ?? true,
-            createdAt: rec.created_at || new Date().toISOString(),
-            ...(existing || {}),
+            createdAt: existing?.createdAt || rec.created_at || new Date().toISOString(),
           } as Challenge)
         }
         setItem(KEYS.challenges, Array.from(byId.values()))
@@ -532,39 +614,34 @@ export const store = {
       }
 
       // Recompute derived challenge stats from the freshly merged activity, so
-      // totals/streaks/follower counts are correct regardless of which device
-      // the underlying donation/check-in/follow actually happened on
+      // totals/streaks/ripples/follower counts are correct regardless of which
+      // device the underlying activity actually happened on.
       const challenges = getItem<Challenge[]>(KEYS.challenges, [])
       if (challenges.length > 0) {
         const allDonations = getItem<Donation[]>(KEYS.donations, [])
         const allCheckIns = getItem<CheckIn[]>(KEYS.checkIns, [])
+        // Ripple count = how many challenges name this one as their parent
+        const rippleByParent = new Map<string, number>()
+        for (const c of challenges) {
+          if (c.parentChallengeId) rippleByParent.set(c.parentChallengeId, (rippleByParent.get(c.parentChallengeId) || 0) + 1)
+        }
         const updatedChallenges = challenges.map(c => {
           const donations = allDonations.filter(d => d.challengeId === c.id)
-          const checkIns = allCheckIns.filter(ci => ci.challengeId === c.id).sort((a, b) => a.dayNumber - b.dayNumber)
+          const checkIns = allCheckIns.filter(ci => ci.challengeId === c.id)
 
-          const totalRaisedCents = donations.reduce((sum, d) => {
-            if (d.type === 'flat') return sum + (d.flatAmountCents || 0)
-            return sum + ((d.perDayAmountCents || 0) * c.durationDays) + (d.bonusAmountCents || 0)
-          }, 0)
-
-          let daysCompleted = 0, longestStreak = 0, running = 0
-          for (const ci of checkIns) {
-            if (ci.completed) { daysCompleted++; running++; longestStreak = Math.max(longestStreak, running) }
-            else running = 0
-          }
-          let currentStreak = 0
-          for (let i = checkIns.length - 1; i >= 0; i--) {
-            if (checkIns[i].completed) currentStreak++
-            else break
-          }
+          const { daysCompleted, longestStreak, currentStreak } = computeStreaks(checkIns)
+          const { earned, potential } = computeEarnings(donations, daysCompleted, c.durationDays)
+          const cloudRipples = rippleByParent.get(c.id) || 0
 
           return {
             ...c,
-            totalRaisedCents: donations.length > 0 ? totalRaisedCents : c.totalRaisedCents,
+            totalRaisedCents: donations.length > 0 ? earned : c.totalRaisedCents,
+            potentialRaisedCents: donations.length > 0 ? potential : (c.potentialRaisedCents ?? c.totalRaisedCents),
             donorCount: donations.length > 0 ? donations.length : c.donorCount,
-            daysCompleted: checkIns.length > 0 ? Math.max(daysCompleted, c.daysCompleted) : c.daysCompleted,
-            longestStreak: checkIns.length > 0 ? Math.max(longestStreak, c.longestStreak) : c.longestStreak,
+            daysCompleted: checkIns.length > 0 ? daysCompleted : c.daysCompleted,
+            longestStreak: checkIns.length > 0 ? longestStreak : c.longestStreak,
             currentStreak: checkIns.length > 0 ? currentStreak : c.currentStreak,
+            rippleCount: Math.max(cloudRipples, c.rippleCount || 0),
             followerCount: Math.max(this.getFollowerCount(c.userId), c.followerCount),
           }
         })
@@ -773,6 +850,9 @@ export const store = {
         charity_name: charityName || 'General Charity',
         creator_name: this.findUserById(challenge.userId)?.name || 'Anonymous',
         raised_amount: 0,
+        parent_challenge_id: challenge.parentChallengeId || null,
+        is_public: challenge.isPublic !== false,
+        duration_days: challenge.durationDays,
       }]).then()
     } catch (e) {
       console.error('Supabase insert error:', e)
@@ -820,13 +900,26 @@ export const store = {
     const challenge = this.getChallenges().find(c => c.id === data.challengeId)
     if (!challenge) throw new Error('Challenge not found')
     if (challenge.status !== 'active') throw new Error('This challenge is already complete')
-    if (data.dayNumber > challenge.durationDays) throw new Error('Challenge duration reached — no more check-ins')
 
     const checkIns = this.getCheckIns()
-    const existing = checkIns.find(ci => ci.challengeId === data.challengeId && ci.dayNumber === data.dayNumber)
-    if (existing) throw new Error('Already checked in today')
+    const mine = checkIns.filter(ci => ci.challengeId === data.challengeId)
 
-    const checkIn: CheckIn = { ...data, id: generateId(), createdAt: new Date().toISOString() }
+    // Guard by calendar date — one check-in per day, regardless of dayNumber
+    const todayKey = new Date(data.checkInDate || new Date().toISOString()).toISOString().slice(0, 10)
+    const alreadyToday = mine.some(ci =>
+      new Date(ci.checkInDate || ci.createdAt).toISOString().slice(0, 10) === todayKey
+    )
+    if (alreadyToday) throw new Error('Already checked in today')
+
+    // Reached the duration in distinct completed days? No more check-ins needed.
+    const completedDaysSoFar = new Set(
+      mine.filter(ci => ci.completed).map(ci => new Date(ci.checkInDate || ci.createdAt).toISOString().slice(0, 10))
+    ).size
+    if (completedDaysSoFar >= challenge.durationDays) throw new Error('Challenge duration reached — no more check-ins')
+
+    // dayNumber is now just a display ordinal (Nth completed day)
+    const normalized = { ...data, dayNumber: completedDaysSoFar + 1 }
+    const checkIn: CheckIn = { ...normalized, id: generateId(), createdAt: new Date().toISOString() }
     setItem(KEYS.checkIns, [...checkIns, checkIn])
     this.pushRecord('checkIns', checkIn)
     try {
@@ -853,23 +946,26 @@ export const store = {
       raisedDeltaCents: data.completed ? perDayCents : 0,
     }, { userId: challenge.userId })
 
-    // Update challenge stats
+    // Update challenge stats — recompute from the full check-in history so
+    // streaks are calendar-aware (a missed calendar day breaks the streak)
     {
-      const newStreak = data.completed ? challenge.currentStreak + 1 : 0
-      const newDaysCompleted = data.completed ? challenge.daysCompleted + 1 : challenge.daysCompleted
-      const newLongestStreak = Math.max(challenge.longestStreak, newStreak)
-      const isComplete = data.completed && data.dayNumber >= challenge.durationDays
+      const allCheckIns = this.getCheckIns().filter(ci => ci.challengeId === challenge.id)
+      const { daysCompleted, longestStreak, currentStreak } = computeStreaks(allCheckIns)
+      const donations = this.getDonationsForChallenge(challenge.id)
+      const { earned, potential } = computeEarnings(donations, daysCompleted, challenge.durationDays)
+      const isComplete = daysCompleted >= challenge.durationDays
 
       this.updateChallenge(challenge.id, {
-        currentStreak: newStreak,
-        daysCompleted: newDaysCompleted,
-        longestStreak: newLongestStreak,
+        currentStreak,
+        daysCompleted,
+        longestStreak: Math.max(challenge.longestStreak, longestStreak),
+        totalRaisedCents: earned,
+        potentialRaisedCents: potential,
         status: isComplete ? 'completed' : challenge.status,
         completedAt: isComplete ? new Date().toISOString() : undefined,
       })
       if (isComplete) {
-        const bonusCents = this.getDonationsForChallenge(challenge.id)
-          .reduce((s, d) => s + (d.bonusAmountCents || 0), 0)
+        const bonusCents = donations.reduce((s, d) => s + (d.bonusAmountCents || 0), 0)
         trackEvent('challenge_completed', { challengeId: challenge.id, days: challenge.durationDays, bonusCents }, { userId: challenge.userId })
       }
     }
@@ -930,12 +1026,10 @@ export const store = {
     const challenge = this.getChallenges().find(c => c.id === data.challengeId)
     if (challenge) {
       const challengeDonations = this.getDonationsForChallenge(challenge.id)
-      const totalPledged = challengeDonations.reduce((sum, d) => {
-        if (d.type === 'flat') return sum + (d.flatAmountCents || 0)
-        return sum + ((d.perDayAmountCents || 0) * challenge.durationDays) + (d.bonusAmountCents || 0)
-      }, 0)
+      const { earned, potential } = computeEarnings(challengeDonations, challenge.daysCompleted, challenge.durationDays)
       this.updateChallenge(challenge.id, {
-        totalRaisedCents: totalPledged,
+        totalRaisedCents: earned,
+        potentialRaisedCents: potential,
         donorCount: challengeDonations.length,
       })
     }
@@ -978,7 +1072,7 @@ export const store = {
   // Leaderboard
   getLeaderboard(type: string): Challenge[] {
     const challenges = this.getChallenges()
-      .filter(c => c.status === 'active' || c.status === 'completed')
+      .filter(c => (c.status === 'active' || c.status === 'completed') && c.isPublic !== false)
       .map(c => this.expandChallenge(c))
 
     if (type === 'earners') return challenges.sort((a, b) => b.totalRaisedCents - a.totalRaisedCents)
@@ -1096,7 +1190,7 @@ export const store = {
   // User-aggregated leaderboard — every entry is a person, not a challenge
   getUserLeaderboard(type: string): { user: User; value: number }[] {
     const byUser = new Map<string, { user: User; value: number }>()
-    const challenges = this.getChallenges().filter(c => c.status === 'active' || c.status === 'completed')
+    const challenges = this.getChallenges().filter(c => (c.status === 'active' || c.status === 'completed') && c.isPublic !== false)
     for (const c of challenges) {
       const user = this.findUserById(c.userId)
       if (!user) continue

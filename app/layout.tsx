@@ -1,12 +1,13 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
+import '@fontsource/inter/400.css'
+import '@fontsource/inter/500.css'
+import '@fontsource/inter/600.css'
+import '@fontsource/inter/700.css'
 import './globals.css'
 import { Navbar } from '@/components/ui/navbar'
 import { MobileTabBar } from '@/components/ui/mobile-tab-bar'
 import { AuthProvider } from '@/components/ui/auth-context'
 import { DeepLinkHandler } from '@/components/ui/deep-link-handler'
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
   title: 'Nachas — Turn Your Growth Into Charity',
@@ -27,7 +28,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} font-sans bg-nachas-dark text-white min-h-screen`}>
+      <body className="font-sans bg-nachas-dark text-white min-h-screen">
         <AuthProvider>
           <DeepLinkHandler />
           <Navbar />
