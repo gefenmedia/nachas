@@ -484,7 +484,7 @@ export const store = {
             id: rec.id,
             challengeId: rec.challenge_id,
             authorName: rec.user_name,
-            authorEmail: existing?.authorEmail || '',
+            authorEmail: rec.author_email || existing?.authorEmail || '',
             text: rec.content,
             createdAt: rec.created_at || new Date().toISOString(),
           } as Comment)
@@ -891,6 +891,8 @@ export const store = {
     const donation: Donation = { ...data, id: generateId(), createdAt: new Date().toISOString() }
     setItem(KEYS.donations, [...donations, donation])
     this.pushRecord('donations', donation)
+
+    // Cloud sync — donations must reach the challenge owner's device
     try {
       supabase.from('donations').insert([{
         id: donation.id,
@@ -906,6 +908,7 @@ export const store = {
         total_charged_cents: donation.totalChargedCents,
         platform_fee_cents: donation.platformFeeCents,
         net_to_charity_cents: donation.netToCharityCents,
+        created_at: donation.createdAt,
       }]).then()
     } catch (e) {
       console.error('Supabase donations insert error:', e)
@@ -962,7 +965,9 @@ export const store = {
         id: comment.id,
         challenge_id: comment.challengeId,
         user_name: comment.authorName,
+        author_email: comment.authorEmail || null,
         content: comment.text,
+        created_at: comment.createdAt,
       }]).then()
     } catch (e) {
       console.error('Supabase comments insert error:', e)
