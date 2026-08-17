@@ -130,3 +130,47 @@ export function BadgeIcon({ badgeKey, className = 'w-5 h-5' }: { badgeKey: strin
 export function StreakFlame({ className = 'w-5 h-5' }: { className?: string }) {
   return <CustomIcon name="flame" className={className} />
 }
+
+/**
+ * HeroFlame — the emotional centerpiece of the app. A filled, two-tone flame
+ * with an inner core, built to feel alive (pair with .animate-flame). This is
+ * deliberately NOT a generic stroke icon — it has depth and a warm gradient.
+ * `lit` controls whether it glows (active streak) or sits grey (streak broken).
+ */
+export function HeroFlame({
+  className = 'w-16 h-16',
+  lit = true,
+  animate = true,
+}: {
+  className?: string
+  lit?: boolean
+  animate?: boolean
+}) {
+  const gid = 'nachas-flame-grad'
+  const cid = 'nachas-flame-core'
+  return (
+    <svg viewBox="0 0 64 64" fill="none" className={`${className} ${animate && lit ? 'animate-flame' : ''}`} aria-hidden="true">
+      <defs>
+        <linearGradient id={gid} x1="32" y1="4" x2="32" y2="60" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor={lit ? '#f9d76e' : '#3a4a63'} />
+          <stop offset="0.55" stopColor={lit ? '#f5c542' : '#2c3a52'} />
+          <stop offset="1" stopColor={lit ? '#ff9838' : '#243146'} />
+        </linearGradient>
+        <linearGradient id={cid} x1="32" y1="24" x2="32" y2="54" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor={lit ? '#fff3c4' : '#4a5a73'} />
+          <stop offset="1" stopColor={lit ? '#ffcaa0' : '#3a4a63'} />
+        </linearGradient>
+      </defs>
+      {/* outer flame body */}
+      <path
+        d="M32 3c1.5 6.2 5.4 9.8 8.9 13.4 3.8 3.9 7.1 8.2 7.1 14.3C48 42.4 40.8 50 32 50s-16-7.6-16-19.3c0-4.2 1.6-7.4 3.6-10 .2 2.6 1.3 4.6 3.3 5.7-1-2.1-1.6-4.3-1.6-6.6C21.3 12.6 26.4 6.9 32 3z"
+        fill={`url(#${gid})`}
+      />
+      {/* inner core */}
+      <path
+        d="M32 27c.9 3.4 3.2 5.2 5 7.4 1.8 2.1 2.9 4 2.9 6.6C39.9 46.3 36.4 50 32 50s-7.9-3.7-7.9-9c0-2.3 1-4.2 2.3-6 .3 1.4.9 2.5 2 3.2-.6-1.3-.9-2.6-.9-4C27.5 31.4 29.6 28.6 32 27z"
+        fill={`url(#${cid})`}
+      />
+    </svg>
+  )
+}

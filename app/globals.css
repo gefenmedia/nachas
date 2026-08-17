@@ -8,42 +8,161 @@
   }
 }
 
+/* ─────────────────────────────────────────────────────────────
+   NACHAS MOTION SYSTEM
+   Warm, satisfying, unique. Springy but dignified — celebratory
+   without being cartoonish. Every keyframe here is used somewhere
+   in the app; nothing decorative-for-its-own-sake.
+   ───────────────────────────────────────────────────────────── */
+
+/* A custom easing curve used across the app — a gentle overshoot
+   that reads as "alive" without the full Duolingo bounce. */
+:root {
+  --ease-nachas: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes nachas-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.28); }
+  70%  { transform: scale(0.94); }
+  100% { transform: scale(1); }
+}
+
+@keyframes nachas-flame-flicker {
+  0%, 100% { transform: scale(1) rotate(-1deg); opacity: 1; }
+  25%      { transform: scale(1.06) rotate(1.5deg); opacity: 0.92; }
+  50%      { transform: scale(0.97) rotate(-1.5deg); opacity: 1; }
+  75%      { transform: scale(1.04) rotate(1deg); opacity: 0.95; }
+}
+
+@keyframes nachas-rise {
+  0%   { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-38px); opacity: 0; }
+}
+
+@keyframes nachas-fade-up {
+  0%   { transform: translateY(10px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes nachas-scale-in {
+  0%   { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes nachas-ring-pulse {
+  0%   { transform: scale(0.8); opacity: 0.7; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+@keyframes nachas-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes nachas-bar-grow {
+  0% { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
+}
+
+@keyframes nachas-urgent-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,107,107,0.5); }
+  50%      { box-shadow: 0 0 0 8px rgba(255,107,107,0); }
+}
+
+@keyframes nachas-badge-unlock {
+  0%   { transform: scale(0) rotate(-25deg); opacity: 0; }
+  60%  { transform: scale(1.2) rotate(6deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes nachas-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+
 @layer components {
   .btn-primary {
-    @apply bg-nachas-gold text-nachas-dark font-semibold px-6 py-3 rounded-xl 
-           hover:bg-nachas-goldLight transition-colors disabled:opacity-50;
+    @apply bg-nachas-gold text-nachas-dark font-semibold px-6 py-3 rounded-xl
+           hover:bg-nachas-goldLight disabled:opacity-50;
+    transition: transform 0.15s var(--ease-nachas), background-color 0.2s ease, box-shadow 0.2s ease;
   }
+  .btn-primary:active:not(:disabled) { transform: scale(0.96); }
+
   .btn-secondary {
-    @apply bg-nachas-navy text-white font-semibold px-6 py-3 rounded-xl 
-           hover:bg-opacity-80 transition-colors border border-white/10;
+    @apply bg-nachas-navy text-white font-semibold px-6 py-3 rounded-xl
+           hover:bg-opacity-80 border border-white/10;
+    transition: transform 0.15s var(--ease-nachas), background-color 0.2s ease;
   }
+  .btn-secondary:active:not(:disabled) { transform: scale(0.96); }
+
   .card {
     @apply bg-nachas-navy rounded-2xl p-6 border border-white/5;
   }
+
+  /* Tappable card — subtle lift on hover, press-down on tap */
+  .card-interactive {
+    @apply card;
+    transition: transform 0.18s var(--ease-nachas), background-color 0.2s ease, border-color 0.2s ease;
+  }
+  .card-interactive:hover { transform: translateY(-2px); }
+  .card-interactive:active { transform: scale(0.985); }
+
   .input {
     @apply w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-base
            text-white placeholder-white/30 focus:outline-none focus:border-nachas-gold;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
+  .input:focus { box-shadow: 0 0 0 3px rgba(245,197,66,0.12); }
 }
 
 @layer utilities {
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+  .animate-pop           { animation: nachas-pop 0.45s var(--ease-nachas); }
+  .animate-flame         { animation: nachas-flame-flicker 2.2s ease-in-out infinite; transform-origin: center bottom; }
+  .animate-rise          { animation: nachas-rise 1.1s var(--ease-soft) forwards; }
+  .animate-fade-up       { animation: nachas-fade-up 0.5s var(--ease-soft) both; }
+  .animate-scale-in      { animation: nachas-scale-in 0.4s var(--ease-nachas) both; }
+  .animate-ring-pulse    { animation: nachas-ring-pulse 1s var(--ease-soft) forwards; }
+  .animate-bar-grow      { animation: nachas-bar-grow 0.8s var(--ease-soft) both; transform-origin: left; }
+  .animate-urgent        { animation: nachas-urgent-pulse 2s ease-in-out infinite; }
+  .animate-badge-unlock  { animation: nachas-badge-unlock 0.6s var(--ease-nachas) both; }
+  .animate-float         { animation: nachas-float 3s ease-in-out infinite; }
+
+  /* Staggered entrance — apply .stagger to a parent, children fade-up in sequence */
+  .stagger > * { animation: nachas-fade-up 0.5s var(--ease-soft) both; }
+  .stagger > *:nth-child(1) { animation-delay: 0.04s; }
+  .stagger > *:nth-child(2) { animation-delay: 0.10s; }
+  .stagger > *:nth-child(3) { animation-delay: 0.16s; }
+  .stagger > *:nth-child(4) { animation-delay: 0.22s; }
+  .stagger > *:nth-child(5) { animation-delay: 0.28s; }
+  .stagger > *:nth-child(6) { animation-delay: 0.34s; }
+  .stagger > *:nth-child(7) { animation-delay: 0.40s; }
+  .stagger > *:nth-child(8) { animation-delay: 0.46s; }
+
+  .shimmer {
+    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.04) 75%);
+    background-size: 200% 100%;
+    animation: nachas-shimmer 1.4s ease-in-out infinite;
   }
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
+
+  .tabular-nums { font-variant-numeric: tabular-nums; }
 }
 
 @layer base {
-  html {
-    -webkit-tap-highlight-color: transparent;
-  }
-  button, a {
-    touch-action: manipulation;
-  }
-  input, textarea, select {
-    font-size: 16px; /* prevent iOS zoom on focus */
+  html { -webkit-tap-highlight-color: transparent; }
+  button, a { touch-action: manipulation; }
+  input, textarea, select { font-size: 16px; }
+
+  /* Respect users who prefer reduced motion — kill all animation */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
   }
 }

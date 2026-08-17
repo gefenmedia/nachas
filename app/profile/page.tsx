@@ -3,11 +3,12 @@
 import { useAuth } from '@/components/ui/auth-context'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { Camera, Check } from 'lucide-react'
+import { Camera, Check, Volume2, VolumeX } from 'lucide-react'
 import { store } from '@/lib/store'
 import { fileToAvatarDataUrl } from '@/lib/image'
 import { trackEvent } from '@/lib/track'
 import { currentReturnTo, rememberReturnTo } from '@/lib/deep-link'
+import { isSoundOn, setSoundOn, playCheckIn } from '@/lib/fx'
 
 /**
  * Profile — minimalistic settings view only.
@@ -18,8 +19,11 @@ export default function ProfilePage() {
   const router = useRouter()
   const [form, setForm] = useState({ name: '', bio: '', email: '', password: '' })
   const [saved, setSaved] = useState(false)
+  const [soundOn, setSoundOnState] = useState(true)
   const [error, setError] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => { setSoundOnState(isSoundOn()) }, [])
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -141,6 +145,26 @@ export default function ProfilePage() {
           {saved ? <><Check className="w-4 h-4" /> Saved!</> : 'Save Changes'}
         </button>
       </form>
+
+      {/* Sound & feedback */}
+      <div className="card mt-5 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          {soundOn ? <Volume2 className="w-5 h-5 text-nachas-gold" /> : <VolumeX className="w-5 h-5 text-white/40" />}
+          <div>
+            <div className="font-medium text-sm">Sound &amp; haptics</div>
+            <div className="text-xs text-white/40">Check-in chimes and vibration</div>
+          </div>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={soundOn}
+          onClick={() => { const v = !soundOn; setSoundOn(v); setSoundOnState(v); if (v) playCheckIn() }}
+          className={`relative w-12 h-7 rounded-full transition shrink-0 ${soundOn ? 'bg-nachas-gold' : 'bg-white/20'}`}
+        >
+          <span className={`absolute top-1 left-1 w-5 h-5 rounded-full bg-white transition-transform ${soundOn ? 'translate-x-5' : ''}`} />
+        </button>
+      </div>
     </div>
   )
 }

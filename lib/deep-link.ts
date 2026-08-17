@@ -100,6 +100,18 @@ export function safeInternalPath(path: string | null | undefined): string {
   return p
 }
 
+/**
+ * True only for genuine shareable deep-links (a specific challenge or profile).
+ * Ordinary pages like /leaderboard or /dashboard are NOT deep-links — a new
+ * user should land on their Home, not be redirected back to a browse page they
+ * happened to be on before signing up.
+ */
+export function isDeepLinkPath(path: string | null | undefined): boolean {
+  const p = safeInternalPath(path)
+  if (!p) return false
+  return p.startsWith('/challenge') || p.startsWith('/user')
+}
+
 export function rememberReturnTo(path: string) {
   const safe = safeInternalPath(path)
   if (!safe || typeof sessionStorage === 'undefined') return

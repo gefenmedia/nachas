@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useAuth } from '@/components/ui/auth-context'
 import { LogoMark } from '@/components/ui/logo'
 import { store } from '@/lib/store'
-import { canonicalDeepLink, consumeReturnTo, safeInternalPath, locationParams } from '@/lib/deep-link'
+import { canonicalDeepLink, consumeReturnTo, safeInternalPath, locationParams, isDeepLinkPath } from '@/lib/deep-link'
 
 function SignupForm() {
   const [name, setName] = useState('')
@@ -68,8 +68,12 @@ function SignupForm() {
         return
       }
     }
+    // New users should land on their Home — only honor a redirect target when
+    // it's a genuine shared deep-link (a challenge/profile), not an ordinary
+    // page like /leaderboard they happened to be on before signing up.
     const storedTarget = consumeReturnTo()
-    const target = safeInternalPath(effectiveNext || storedTarget)
+    const candidate = safeInternalPath(effectiveNext || storedTarget)
+    const target = isDeepLinkPath(candidate) ? candidate : ''
     router.push(target || '/dashboard')
     router.refresh()
   }

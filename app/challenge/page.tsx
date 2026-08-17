@@ -9,7 +9,9 @@ import { store, Challenge, Donation } from '@/lib/store'
 import { downloadShareImage } from '@/lib/share-image'
 import { useAuth } from '@/components/ui/auth-context'
 import { LogoMark } from '@/components/ui/logo'
-import { StreakFlame } from '@/components/ui/icons'
+import { StreakFlame, HeroFlame } from '@/components/ui/icons'
+import { CheckInCelebration } from '@/components/ui/check-in-celebration'
+import { CountUp } from '@/lib/fx'
 import { trackEvent } from '@/lib/track'
 import { shareMessage, challengeUrl } from '@/lib/share'
 import { canonicalDeepLink, getDeepLinkFromLocation, locationParams, rememberReturnTo } from '@/lib/deep-link'
@@ -35,6 +37,7 @@ function ChallengeContent() {
   const [donateError, setDonateError] = useState('')
   const [toast, setToast] = useState('')
   const [justCheckedIn, setJustCheckedIn] = useState(false)
+  const [celeb, setCeleb] = useState<{ show: boolean; day: number; streak: number; earnedDeltaCents: number; isMilestone: boolean }>({ show: false, day: 0, streak: 0, earnedDeltaCents: 0, isMilestone: false })
   const [following, setFollowing] = useState(false)
   const [askFollowName, setAskFollowName] = useState(false)
   const [guestFollowName, setGuestFollowName] = useState('')
@@ -118,10 +121,19 @@ function ChallengeContent() {
     if (!challenge) return
     if (challenge.status !== 'active' || recordedDays(challenge) >= challenge.durationDays) return
     const dayNumber = recordedDays(challenge) + 1
+    const beforeRaised = challenge.totalRaisedCents
     try {
       store.createCheckIn({ challengeId: challenge.id, dayNumber, completed: true, checkInDate: new Date().toISOString() })
-      setJustCheckedIn(true)
-      if (dayNumber === 7 || dayNumber === 30) confetti({ particleCount: 60, spread: 60 })
+      const updated = store.getChallengeById(challenge.id)
+      const delta = updated ? Math.max(0, updated.totalRaisedCents - beforeRaised) : 0
+      const milestone = [7, 14, 30, 60, 90].includes(dayNumber) || dayNumber >= challenge.durationDays
+      setCeleb({
+        show: true,
+        day: dayNumber,
+        streak: updated?.currentStreak ?? dayNumber,
+        earnedDeltaCents: delta,
+        isMilestone: milestone,
+      })
     } catch (e: any) {
       setToast(e?.message || 'Could not check in. Please try again.')
       setTimeout(() => setToast(''), 3500)
@@ -328,6 +340,15 @@ function ChallengeContent() {
   // ---------- Standard challenge page ----------
   return (
     <div className="px-6 py-8 max-w-2xl mx-auto space-y-6">
+      <CheckInCelebration
+        show={celeb.show}
+        day={celeb.day}
+        streak={celeb.streak}
+        earnedDeltaCents={celeb.earnedDeltaCents}
+        charityName={challenge.charity?.name}
+        isMilestone={celeb.isMilestone}
+        onDone={() => { setCeleb(c => ({ ...c, show: false })); setJustCheckedIn(true) }}
+      />
       {toast && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 rounded-xl bg-nachas-coral/90 text-white text-sm px-4 py-2 shadow-lg">
           {toast}
@@ -401,17 +422,22 @@ function ChallengeContent() {
         </div>
       )}
 
-      {/* Streak & progress — challenge name + dedication replace the flame emoji */}
+      {/* Streak & progress — the emotional hero of the page */}
       <div className="card text-center">
         <div className="font-bold text-lg">{challengeDisplayName(challenge)}</div>
         {challenge.dedication && <div className="text-nachas-gold italic text-sm mt-0.5 mb-2">&quot;{challenge.dedication}&quot;</div>}
-        <div className="flex items-center justify-center gap-2 mt-3">
-          <StreakFlame className="w-8 h-8 text-nachas-gold" />
-          <span className="text-4xl font-bold text-nachas-gold">{challenge.currentStreak}</span>
+        <div className="relative inline-block mt-4 mb-1">
+          <HeroFlame className="w-24 h-24 mx-auto" lit={challenge.currentStreak > 0} />
         </div>
-        <div className="text-white/40 text-sm">Day Streak</div>
-        <div className="mt-4 text-sm text-white/60">{isComplete ? `${challenge.durationDays} of ${challenge.durationDays} days complete` : `Day ${todayDay} of ${challenge.durationDays}`}</div>
-        <div className="h-3 bg-white/5 rounded-full overflow-hidden mt-2"><div className="h-full bg-nachas-gold rounded-full transition-all" style={{ width: `${progress}%` }} /></div>
+        <div className="text-5xl font-extrabold text-nachas-gold leading-none">
+          <CountUp value={challenge.currentStreak} />
+        </div>
+        <div className="text-white/40 text-sm mt-1 uppercase tracking-wide">Day Streak</div>
+        {challenge.currentStreak === 0 && recordedDays(challenge) > 0 && !isComplete && (
+          <div className="text-nachas-coral/80 text-xs mt-2">Streak reset — check in today to start again</div>
+        )}
+        <div className="mt-5 text-sm text-white/60">{isComplete ? `${challenge.durationDays} of ${challenge.durationDays} days complete` : `Day ${todayDay} of ${challenge.durationDays}`}</div>
+        <div className="h-3 bg-white/5 rounded-full overflow-hidden mt-2"><div className="h-full bg-nachas-gold rounded-full animate-bar-grow" style={{ width: `${progress}%` }} /></div>
         {perDayCentsLive > 0 && (
           <div className="mt-4 inline-flex items-center gap-2 bg-nachas-teal/10 text-nachas-teal text-sm font-medium px-4 py-2 rounded-xl">
             <StreakFlame className="w-4 h-4" />
@@ -423,14 +449,15 @@ function ChallengeContent() {
           <div className="flex flex-wrap gap-1 justify-center">
             {Array.from({ length: challenge.durationDays }, (_, i) => {
               const ci = checkInMap.get(i + 1)
-              const cls = ci ? (ci.completed ? 'bg-nachas-green' : 'bg-red-400') : 'bg-white/10'
+              // Kinder than red: completed = green, missed = muted grey, upcoming = faint
+              const cls = ci ? (ci.completed ? 'bg-nachas-green' : 'bg-white/25') : 'bg-white/10'
               const label = ci ? (ci.completed ? 'completed' : 'missed') : 'upcoming'
               return <div key={i} title={`Day ${i + 1}: ${label}`} className={`w-3 h-3 rounded-sm ${cls}`} />
             })}
           </div>
           <div className="flex justify-center gap-4 mt-2 text-xs text-white/40">
             <span><span className="inline-block w-2 h-2 rounded-sm bg-nachas-green mr-1" />Completed</span>
-            <span><span className="inline-block w-2 h-2 rounded-sm bg-red-400 mr-1" />Missed</span>
+            <span><span className="inline-block w-2 h-2 rounded-sm bg-white/25 mr-1" />Missed</span>
             <span><span className="inline-block w-2 h-2 rounded-sm bg-white/10 mr-1" />Upcoming</span>
           </div>
         </div>

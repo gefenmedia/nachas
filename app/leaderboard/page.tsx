@@ -55,10 +55,24 @@ export default function LeaderboardPage() {
         )}
         {entries.map((e, i) => {
           const label = valueLabel(e)
+          const medal = ['#f5c542', '#c9d1d9', '#cd7f32'][i] // gold / silver / bronze
+          const isPodium = i < 3
           return (
-            <Link key={e.user.id} href={`/user?id=${e.user.id}`} className="card flex items-center gap-4 hover:bg-white/5 transition">
-              <div className="text-2xl font-bold text-white/20 w-8 text-center">{i+1}</div>
-              <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-lg font-bold overflow-hidden">
+            <Link
+              key={e.user.id}
+              href={`/user?id=${e.user.id}`}
+              className={`card-interactive flex items-center gap-4 ${isPodium ? 'border-white/10' : ''}`}
+              style={isPodium ? { boxShadow: `inset 3px 0 0 0 ${medal}` } : undefined}
+            >
+              <div className="w-8 text-center shrink-0">
+                {isPodium
+                  ? <span className="text-2xl font-extrabold" style={{ color: medal }}>{i + 1}</span>
+                  : <span className="text-xl font-bold text-white/20">{i + 1}</span>}
+              </div>
+              <div
+                className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-lg font-bold overflow-hidden shrink-0"
+                style={isPodium ? { boxShadow: `0 0 0 2px ${medal}` } : undefined}
+              >
                 {e.user.avatarUrl
                   ? <img src={e.user.avatarUrl} alt={e.user.name} className="w-full h-full object-cover" />
                   : e.user.name?.[0]}
@@ -67,7 +81,7 @@ export default function LeaderboardPage() {
                 <div className="font-semibold truncate">{e.user.name}</div>
                 <div className="text-sm text-white/40">{label.sub}</div>
               </div>
-              <div className="font-bold text-nachas-gold text-right">{label.main}</div>
+              <div className="font-bold text-nachas-gold text-right shrink-0">{label.main}</div>
             </Link>
           )
         })}

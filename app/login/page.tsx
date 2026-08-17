@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/components/ui/auth-context'
 import { LogoMark } from '@/components/ui/logo'
-import { consumeReturnTo, safeInternalPath, locationParams } from '@/lib/deep-link'
+import { consumeReturnTo, safeInternalPath, locationParams, isDeepLinkPath } from '@/lib/deep-link'
 
 function LoginForm() {
   const [email, setEmail] = useState('')
@@ -28,9 +28,11 @@ function LoginForm() {
     const success = await login(email, password)
     if (!success) { setError('Invalid email or password'); return }
 
-    // A shared link must win over the default Home redirect.
+    // A shared deep-link (challenge/profile) wins over the default Home redirect,
+    // but ordinary pages like /leaderboard shouldn't hijack where you land.
     const storedTarget = consumeReturnTo()
-    const target = safeInternalPath(nextParam || storedTarget)
+    const candidate = safeInternalPath(nextParam || storedTarget)
+    const target = isDeepLinkPath(candidate) ? candidate : ''
     router.push(target || '/dashboard')
     router.refresh()
   }

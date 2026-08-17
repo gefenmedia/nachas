@@ -6,7 +6,9 @@ import Link from 'next/link'
 import { TrendingUp, Plus, Activity, Share2, ChevronRight, Award, Check, Users } from 'lucide-react'
 import { store, Challenge } from '@/lib/store'
 import { LogoMark } from '@/components/ui/logo'
-import { BadgeIcon } from '@/components/ui/icons'
+import { BadgeIcon, StreakFlame } from '@/components/ui/icons'
+import { CheckInCelebration } from '@/components/ui/check-in-celebration'
+import { CountUp } from '@/lib/fx'
 import { trackEvent } from '@/lib/track'
 import { shareMessage, challengeUrl, userUrl } from '@/lib/share'
 import { getBadges } from '@/lib/badges'
@@ -25,6 +27,7 @@ export function HomeScreen() {
   const [circle, setCircle] = useState<Circle | null>(null)
   const [loading, setLoading] = useState(true)
   const [toast, setToast] = useState('')
+  const [celeb, setCeleb] = useState<{ show: boolean; day: number; streak: number; earnedDeltaCents: number; isMilestone: boolean; charityName?: string }>({ show: false, day: 0, streak: 0, earnedDeltaCents: 0, isMilestone: false })
 
   function loadAll(userId: string) {
     setChallenges(store.getUserChallenges(userId))
@@ -70,12 +73,25 @@ export function HomeScreen() {
   // One-tap check-in: updates challenge progress in place, no page refresh
   function quickCheckIn(challenge: Challenge) {
     if (checkedInToday(challenge) || recordedDays(challenge) >= challenge.durationDays) return
+    const dayNumber = recordedDays(challenge) + 1
+    const beforeRaised = challenge.totalRaisedCents
     try {
       store.createCheckIn({
         challengeId: challenge.id,
-        dayNumber: recordedDays(challenge) + 1,
+        dayNumber,
         completed: true,
         checkInDate: new Date().toISOString(),
+      })
+      const updated = store.getChallengeById(challenge.id)
+      const delta = updated ? Math.max(0, updated.totalRaisedCents - beforeRaised) : 0
+      const milestone = [7, 14, 30, 60, 90].includes(dayNumber) || dayNumber >= challenge.durationDays
+      setCeleb({
+        show: true,
+        day: dayNumber,
+        streak: updated?.currentStreak ?? dayNumber,
+        earnedDeltaCents: delta,
+        isMilestone: milestone,
+        charityName: challenge.charity?.name,
       })
       loadAll(user!.id)
     } catch (e: any) {
@@ -88,7 +104,8 @@ export function HomeScreen() {
   const totalRaised = challenges.reduce((n, c) => n + c.totalRaisedCents, 0)
   const totalRipples = challenges.reduce((n, c) => n + (c.rippleCount || 0), 0)
   const bestStreak = challenges.reduce((n, c) => Math.max(n, c.currentStreak), 0)
-  const earnedBadges = getBadges(challenges).filter(b => b.earned)
+  const allBadges = getBadges(challenges)
+  const earnedBadges = allBadges.filter(b => b.earned)
 
   function challengeFriend() {
     const first = active[0]
@@ -148,13 +165,41 @@ export function HomeScreen() {
     )
   }
 
+  // Loss-aversion: an active challenge with a live streak, not yet checked in today
+  const atRisk = active.find(c => c.currentStreak > 0 && !checkedInToday(c) && recordedDays(c) < c.durationDays)
+
   return (
     <div className="px-6 py-8 max-w-2xl mx-auto space-y-6">
+      <CheckInCelebration
+        show={celeb.show}
+        day={celeb.day}
+        streak={celeb.streak}
+        earnedDeltaCents={celeb.earnedDeltaCents}
+        charityName={celeb.charityName}
+        isMilestone={celeb.isMilestone}
+        onDone={() => setCeleb(c => ({ ...c, show: false }))}
+      />
       {toast && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 rounded-xl bg-nachas-coral/90 text-white text-sm px-4 py-2 shadow-lg">
           {toast}
         </div>
       )}
+
+      {/* Loss-aversion banner — the streak-risk nudge */}
+      {atRisk && (
+        <button
+          onClick={() => quickCheckIn(atRisk)}
+          className="w-full flex items-center gap-3 rounded-2xl border border-nachas-coral/40 bg-nachas-coral/10 px-4 py-3 text-left animate-urgent"
+        >
+          <StreakFlame className="w-6 h-6 text-nachas-coral shrink-0" />
+          <div className="flex-1 min-w-0">
+            <div className="font-semibold text-sm">Your {atRisk.currentStreak}-day streak ends tonight</div>
+            <div className="text-xs text-white/60">Tap to check in and keep it alive 🔥</div>
+          </div>
+          <span className="text-xs font-bold text-nachas-dark bg-nachas-gold px-3 py-1.5 rounded-lg shrink-0">Check in</span>
+        </button>
+      )}
+
       {/* Active challenge bar — the first thing seen on open */}
       {firstActive && (
         <Link
@@ -184,18 +229,18 @@ export function HomeScreen() {
         </div>
       )}
 
-      {/* Default stats */}
+      {/* Default stats — tappable, animated */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="card !p-4 text-center">
-          <div className="text-2xl font-bold text-nachas-purple">{totalRipples}</div>
+        <a href="#friends" className="card-interactive !p-4 text-center">
+          <div className="text-2xl font-bold text-nachas-purple"><CountUp value={totalRipples} /></div>
           <div className="text-xs text-white/50 mt-0.5">Ripples</div>
-        </div>
+        </a>
         <div className="card !p-4 text-center">
-          <div className="text-2xl font-bold text-nachas-teal">{formatCents(totalRaised)}</div>
+          <div className="text-2xl font-bold text-nachas-teal"><CountUp value={totalRaised} format={formatCents} /></div>
           <div className="text-xs text-white/50 mt-0.5">Raised</div>
         </div>
         <div className="card !p-4 text-center">
-          <div className="text-2xl font-bold text-nachas-gold">{bestStreak}</div>
+          <div className="text-2xl font-bold text-nachas-gold"><CountUp value={bestStreak} /></div>
           <div className="text-xs text-white/50 mt-0.5">Day streak</div>
         </div>
       </div>
@@ -325,34 +370,38 @@ export function HomeScreen() {
         </div>
       )}
 
-      {/* Badges — custom icon set */}
+      {/* Challenge a Friend — raised up, it's the key growth action */}
+      <button onClick={challengeFriend} className="card-interactive text-left w-full flex items-center gap-4">
+        <span className="w-12 h-12 rounded-2xl bg-nachas-purple/15 flex items-center justify-center shrink-0">
+          <Share2 className="w-6 h-6 text-nachas-purple" />
+        </span>
+        <div className="flex-1">
+          <div className="font-semibold">Challenge a Friend</div>
+          <div className="text-sm text-white/40">Every friend who joins grows your ripple</div>
+        </div>
+        <ChevronRight className="w-5 h-5 text-white/20 shrink-0" />
+      </button>
+
+      {/* Badges — collectible grid, locked + unlocked to invite completion */}
       <div className="card">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Award className="w-5 h-5 text-nachas-gold" />
             <h3 className="font-semibold">Badges</h3>
           </div>
-          <span className="text-sm text-white/40">{earnedBadges.length} of 13 earned</span>
+          <span className="text-sm text-white/40">{earnedBadges.length} of {allBadges.length}</span>
         </div>
-        {earnedBadges.length === 0 ? (
-          <p className="text-white/40 text-sm">Complete Day 1 to earn your first badge.</p>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {earnedBadges.map(({ badge }) => (
-              <span key={badge.key} title={badge.description} className="bg-nachas-gold/10 text-nachas-gold text-sm px-3 py-1.5 rounded-xl inline-flex items-center gap-1.5">
-                <BadgeIcon badgeKey={badge.key} className="w-4 h-4" /> {badge.name}
-              </span>
-            ))}
-          </div>
-        )}
+        <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
+          {allBadges.map(({ badge, earned }) => (
+            <div key={badge.key} title={`${badge.name} — ${badge.description}`} className="flex flex-col items-center gap-1.5 text-center">
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition ${earned ? 'bg-nachas-gold/15 text-nachas-gold' : 'bg-white/5 text-white/15'}`}>
+                <BadgeIcon badgeKey={badge.key} className="w-7 h-7" />
+              </div>
+              <span className={`text-[10px] leading-tight ${earned ? 'text-white/70' : 'text-white/25'}`}>{badge.name}</span>
+            </div>
+          ))}
+        </div>
       </div>
-
-      {/* Challenge a Friend */}
-      <button onClick={challengeFriend} className="card hover:bg-white/5 transition text-left w-full">
-        <Share2 className="w-6 h-6 text-nachas-purple mb-2" />
-        <div className="font-medium">Challenge a Friend</div>
-        <div className="text-sm text-white/40">Send an invite on WhatsApp — every friend who joins grows your ripple</div>
-      </button>
     </div>
   )
 }
