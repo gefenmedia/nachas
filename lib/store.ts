@@ -106,6 +106,9 @@ export interface Challenge {
   isPublic: boolean
   createdAt: string
   completedAt?: string
+  // Text fallback for the creator's name, from Supabase's creator_name column,
+  // used when the real user profile hasn't synced to this device yet
+  creatorNameFallback?: string
   // Expanded fields (not stored, computed on load)
   user?: User
   charity?: Charity
@@ -404,7 +407,8 @@ export const store = {
           const existing = byId.get(rec.id)
           byId.set(rec.id, {
             id: rec.id,
-            userId: existing?.userId || 'user-demo',
+            userId: rec.user_id || existing?.userId || '',
+            creatorNameFallback: rec.creator_name || existing?.creatorNameFallback,
             charityId: existing?.charityId || 'charity-1',
             type: existing?.type || 'custom',
             customName: rec.title,
@@ -626,6 +630,7 @@ export const store = {
     try {
       supabase.from('challenges').insert([{
         id: challenge.id,
+        user_id: challenge.userId,
         title: challengeDisplayName(challenge),
         description: challenge.personalNote || challenge.customDescription || '',
         goal_amount: Math.round(challenge.goalAmountCents / 100),
@@ -651,9 +656,13 @@ export const store = {
   },
 
   expandChallenge(challenge: Challenge): Challenge {
+    const realUser = this.findUserById(challenge.userId)
+    const user = realUser || (challenge.creatorNameFallback
+      ? ({ id: challenge.userId, name: challenge.creatorNameFallback, email: '', password: '', notificationTime: '20:00', timezone: 'America/New_York', createdAt: challenge.createdAt } as User)
+      : undefined)
     return {
       ...challenge,
-      user: this.findUserById(challenge.userId),
+      user,
       charity: this.getCharityById(challenge.charityId),
       checkIns: this.getCheckInsForChallenge(challenge.id),
       donations: this.getDonationsForChallenge(challenge.id),
