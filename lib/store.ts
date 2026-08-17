@@ -438,6 +438,142 @@ export const store = {
       console.error('Supabase sync error:', e)
     }
 
+    // Cloud sync via Supabase — donations, comments, check-ins, and follows
+    // so activity from any device shows up everywhere (mirrors the challenges sync above)
+    try {
+      const [donRes, comRes, ciRes, folRes] = await Promise.all([
+        supabase.from('donations').select('*'),
+        supabase.from('comments').select('*'),
+        supabase.from('checkins').select('*'),
+        supabase.from('follows').select('*'),
+      ])
+
+      if (donRes.data && donRes.data.length > 0) {
+        const local = getItem<Donation[]>(KEYS.donations, [])
+        const byId = new Map(local.map(d => [d.id, d]))
+        for (const rec of donRes.data) {
+          if (!rec || !rec.id) continue
+          byId.set(rec.id, {
+            id: rec.id,
+            challengeId: rec.challenge_id,
+            donorName: rec.donor_name,
+            donorEmail: rec.donor_email,
+            donorMessage: rec.donor_message || undefined,
+            type: rec.type,
+            perDayAmountCents: rec.per_day_amount_cents ?? undefined,
+            bonusAmountCents: rec.bonus_amount_cents ?? 0,
+            flatAmountCents: rec.flat_amount_cents ?? undefined,
+            status: rec.status || 'pledged',
+            totalChargedCents: rec.total_charged_cents ?? 0,
+            platformFeeCents: rec.platform_fee_cents ?? 0,
+            netToCharityCents: rec.net_to_charity_cents ?? 0,
+            createdAt: rec.created_at || new Date().toISOString(),
+          } as Donation)
+        }
+        setItem(KEYS.donations, Array.from(byId.values()))
+        cloudSynced = true
+      }
+
+      if (comRes.data && comRes.data.length > 0) {
+        const local = getItem<Comment[]>(KEYS.comments, [])
+        const byId = new Map(local.map(c => [c.id, c]))
+        for (const rec of comRes.data) {
+          if (!rec || !rec.id) continue
+          const existing = byId.get(rec.id)
+          byId.set(rec.id, {
+            id: rec.id,
+            challengeId: rec.challenge_id,
+            authorName: rec.user_name,
+            authorEmail: existing?.authorEmail || '',
+            text: rec.content,
+            createdAt: rec.created_at || new Date().toISOString(),
+          } as Comment)
+        }
+        setItem(KEYS.comments, Array.from(byId.values()))
+        cloudSynced = true
+      }
+
+      if (ciRes.data && ciRes.data.length > 0) {
+        const local = getItem<CheckIn[]>(KEYS.checkIns, [])
+        const byId = new Map(local.map(c => [c.id, c]))
+        for (const rec of ciRes.data) {
+          if (!rec || !rec.id) continue
+          byId.set(rec.id, {
+            id: rec.id,
+            challengeId: rec.challenge_id,
+            dayNumber: rec.day_number,
+            completed: rec.completed,
+            note: rec.note || undefined,
+            photoUrl: rec.photo_url || undefined,
+            checkInDate: rec.check_in_date || rec.created_at || new Date().toISOString(),
+            createdAt: rec.created_at || new Date().toISOString(),
+          } as CheckIn)
+        }
+        setItem(KEYS.checkIns, Array.from(byId.values()))
+        cloudSynced = true
+      }
+
+      if (folRes.data && folRes.data.length > 0) {
+        const local = getItem<Follow[]>(KEYS.follows, [])
+        const byId = new Map(local.map(f => [f.id, f]))
+        for (const rec of folRes.data) {
+          if (!rec || !rec.id) continue
+          byId.set(rec.id, {
+            id: rec.id,
+            followerUserId: rec.follower_user_id || undefined,
+            followerName: rec.follower_name,
+            followeeUserId: rec.followee_user_id,
+            mutual: !!rec.mutual,
+            createdAt: rec.created_at || new Date().toISOString(),
+          } as Follow)
+        }
+        setItem(KEYS.follows, Array.from(byId.values()))
+        cloudSynced = true
+      }
+
+      // Recompute derived challenge stats from the freshly merged activity, so
+      // totals/streaks/follower counts are correct regardless of which device
+      // the underlying donation/check-in/follow actually happened on
+      const challenges = getItem<Challenge[]>(KEYS.challenges, [])
+      if (challenges.length > 0) {
+        const allDonations = getItem<Donation[]>(KEYS.donations, [])
+        const allCheckIns = getItem<CheckIn[]>(KEYS.checkIns, [])
+        const updatedChallenges = challenges.map(c => {
+          const donations = allDonations.filter(d => d.challengeId === c.id)
+          const checkIns = allCheckIns.filter(ci => ci.challengeId === c.id).sort((a, b) => a.dayNumber - b.dayNumber)
+
+          const totalRaisedCents = donations.reduce((sum, d) => {
+            if (d.type === 'flat') return sum + (d.flatAmountCents || 0)
+            return sum + ((d.perDayAmountCents || 0) * c.durationDays) + (d.bonusAmountCents || 0)
+          }, 0)
+
+          let daysCompleted = 0, longestStreak = 0, running = 0
+          for (const ci of checkIns) {
+            if (ci.completed) { daysCompleted++; running++; longestStreak = Math.max(longestStreak, running) }
+            else running = 0
+          }
+          let currentStreak = 0
+          for (let i = checkIns.length - 1; i >= 0; i--) {
+            if (checkIns[i].completed) currentStreak++
+            else break
+          }
+
+          return {
+            ...c,
+            totalRaisedCents: donations.length > 0 ? totalRaisedCents : c.totalRaisedCents,
+            donorCount: donations.length > 0 ? donations.length : c.donorCount,
+            daysCompleted: checkIns.length > 0 ? Math.max(daysCompleted, c.daysCompleted) : c.daysCompleted,
+            longestStreak: checkIns.length > 0 ? Math.max(longestStreak, c.longestStreak) : c.longestStreak,
+            currentStreak: checkIns.length > 0 ? currentStreak : c.currentStreak,
+            followerCount: Math.max(this.getFollowerCount(c.userId), c.followerCount),
+          }
+        })
+        setItem(KEYS.challenges, updatedChallenges)
+      }
+    } catch (e) {
+      console.error('Supabase activity sync error:', e)
+    }
+
     try {
       const r = await fetch(`${window.location.origin}/api/state`, { cache: 'no-store' })
       if (!r.ok) return cloudSynced
@@ -693,6 +829,19 @@ export const store = {
     const checkIn: CheckIn = { ...data, id: generateId(), createdAt: new Date().toISOString() }
     setItem(KEYS.checkIns, [...checkIns, checkIn])
     this.pushRecord('checkIns', checkIn)
+    try {
+      supabase.from('checkins').insert([{
+        id: checkIn.id,
+        challenge_id: checkIn.challengeId,
+        day_number: checkIn.dayNumber,
+        completed: checkIn.completed,
+        note: checkIn.note || null,
+        photo_url: checkIn.photoUrl || null,
+        check_in_date: checkIn.checkInDate,
+      }]).then()
+    } catch (e) {
+      console.error('Supabase checkins insert error:', e)
+    }
 
     const perDayCents = this.getDonationsForChallenge(challenge.id)
       .filter(d => d.type === 'per_day')
@@ -742,6 +891,25 @@ export const store = {
     const donation: Donation = { ...data, id: generateId(), createdAt: new Date().toISOString() }
     setItem(KEYS.donations, [...donations, donation])
     this.pushRecord('donations', donation)
+    try {
+      supabase.from('donations').insert([{
+        id: donation.id,
+        challenge_id: donation.challengeId,
+        donor_name: donation.donorName,
+        donor_email: donation.donorEmail,
+        donor_message: donation.donorMessage || null,
+        type: donation.type,
+        per_day_amount_cents: donation.perDayAmountCents ?? null,
+        bonus_amount_cents: donation.bonusAmountCents ?? 0,
+        flat_amount_cents: donation.flatAmountCents ?? null,
+        status: donation.status,
+        total_charged_cents: donation.totalChargedCents,
+        platform_fee_cents: donation.platformFeeCents,
+        net_to_charity_cents: donation.netToCharityCents,
+      }]).then()
+    } catch (e) {
+      console.error('Supabase donations insert error:', e)
+    }
     {
       const ch = this.getChallenges().find(c => c.id === data.challengeId)
       trackEvent('pledge_created', {
@@ -789,6 +957,16 @@ export const store = {
     setItem(KEYS.comments, [...comments, comment])
     trackEvent('comment_posted', { challengeId: data.challengeId, authorName: data.authorName })
     this.pushRecord('comments', comment)
+    try {
+      supabase.from('comments').insert([{
+        id: comment.id,
+        challenge_id: comment.challengeId,
+        user_name: comment.authorName,
+        content: comment.text,
+      }]).then()
+    } catch (e) {
+      console.error('Supabase comments insert error:', e)
+    }
     return comment
   },
 
@@ -858,6 +1036,17 @@ export const store = {
     const follow: Follow = { ...data, id: generateId(), createdAt: new Date().toISOString() }
     setItem(KEYS.follows, [...follows, follow])
     this.pushRecord('follows', follow)
+    try {
+      supabase.from('follows').insert([{
+        id: follow.id,
+        follower_user_id: follow.followerUserId || null,
+        follower_name: follow.followerName,
+        followee_user_id: follow.followeeUserId,
+        mutual: follow.mutual,
+      }]).then()
+    } catch (e) {
+      console.error('Supabase follows insert error:', e)
+    }
     trackEvent('follow_created', { followeeUserId: data.followeeUserId, mutual: data.mutual },
       data.followerUserId ? { userId: data.followerUserId, userName: data.followerName } : undefined)
     return follow
