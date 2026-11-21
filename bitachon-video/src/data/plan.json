@@ -13,7 +13,7 @@
   "scenes": [
     {"anchor": "And there was a 14-year-old", "visual": "siddur", "trigger": "davening", "stamps": [{"at": "14-year-old", "text": "14", "style": "number"}], "pulses": ["davening"]},
     {"anchor": "And he went fast", "visual": "speed", "trigger": "fast", "stamps": [{"at": "fast", "text": "fast.", "style": "word"}]},
-    {"anchor": "And I saw there was this man", "visual": "gauge", "trigger": "frustrated", "stamps": [{"at": "frustrated", "text": "frustrated", "style": "word"}], "pulses": ["fast"]},
+    {"anchor": "And I saw there was this man", "visual": "shul", "trigger": "frustrated", "stamps": [{"at": "frustrated", "text": "frustrated", "style": "word"}], "pulses": ["fast"]},
     {"anchor": "And I noticed at the end", "visual": "storm", "trigger": "rebuke", "stamps": [{"at": "Rebuke", "text": "rebuke", "style": "word"}]},
     {"anchor": "So I quickly ran over", "visual": "spark", "trigger": "thank you", "stamps": [{"at": "Thank you, Chazak", "text": "Chazak u'Baruch", "style": "word"}], "pulses": ["Wow", "Amazing"], "sfx": "soft-tick"},
     {"anchor": "And the old man started saying", "visual": "storm", "trigger": "No, no", "stamps": [{"at": "Don't do that", "text": "Don't.", "style": "word"}], "pulses": ["corner"]},

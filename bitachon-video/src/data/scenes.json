@@ -52,7 +52,7 @@
   "startMs": 6400,
   "endMs": 16880,
   "line": "And I saw there was this man, probably in his 60s, and I could see he was very frustrated with how fast this boy was going.",
-  "visual": "gauge",
+  "visual": "shul",
   "trigger": "frustrated",
   "triggerMs": 12240,
   "stamps": [

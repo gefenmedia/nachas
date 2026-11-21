@@ -595,11 +595,88 @@ const Gauge: React.FC<VP> = ({t, trig}) => {
   );
 };
 
+/** Flat illustration: older man (60s, black hat, grey beard) watching a 14-year-old daven fast at the amud. */
+const Shul: React.FC<VP> = ({t, trig}) => {
+  const at = trigAt(trig, 5);
+  const anger = Math.max(interpolate(t, [0, at], [0, 0.45], clamp), p(t, at - 0.1, 0.5));
+  const manIn = p(t, 0, 0.7);
+  const sway = Math.sin(t * 9) * 5; // the boy davens fast
+  const tap = Math.max(0, Math.sin(t * (6 + 6 * anger))) * 10 * anger;
+  const brow = 6 + 20 * anger;
+  const skin = '#E6C29C';
+  return (
+    <g transform="translate(0,35)">
+      {/* shul: arched window + light */}
+      <path d="M560,120 L560,330 L840,330 L840,120 A140,140 0 0 0 560,120 Z" fill={C.navyLift} stroke={C.goldSoft} strokeWidth={6} opacity={0.9} />
+      <path d="M700,-20 L700,330 M560,225 L840,225" stroke={C.goldSoft} strokeWidth={4} opacity={0.5} />
+      <circle cx={700} cy={200} r={220} fill="url(#glow-cream)" opacity={0.35} />
+      <line x1={40} y1={860} x2={960} y2={860} stroke={C.slate} strokeWidth={5} />
+
+      {/* boy at the amud (from behind, swaying quickly) */}
+      <g transform={`rotate(${sway},740,860)`}>
+        <rect x={700} y={500} width={84} height={190} rx={30} fill={C.cream} />
+        <rect x={705} y={680} width={74} height={180} rx={14} fill={C.charcoal} />
+        <circle cx={742} cy={455} r={48} fill={skin} />
+        <path d="M700,440 Q742,395 784,440 Q742,425 700,440 Z" fill={C.navyDeep} />
+        <path d="M698,455 Q690,490 700,505" stroke="#5A3E2B" strokeWidth={6} fill="none" />
+      </g>
+      {/* amud */}
+      <path d="M640,600 L860,560 L860,600 L840,860 L660,860 L640,600 Z" fill="#7A4E2D" stroke={C.gold} strokeWidth={6} strokeLinejoin="round" />
+      <rect x={705} y={545} width={90} height={22} rx={4} fill={C.cream} transform="rotate(-10,750,556)" />
+      <rect x={690} y={680} width={120} height={90} rx={8} fill="none" stroke={C.gold} strokeWidth={4} opacity={0.7} />
+
+      {/* older man, seated, arms crossed */}
+      <g transform={`translate(${(1 - manIn) * -60},0)`} opacity={manIn}>
+        <rect x={110} y={660} width={330} height={30} rx={8} fill="#5E3B22" />
+        <rect x={120} y={690} width={20} height={170} fill="#5E3B22" />
+        <rect x={410} y={690} width={20} height={170} fill="#5E3B22" />
+        {/* legs + tapping foot */}
+        <path d="M230,650 L390,650 L390,700 L230,700 Z" fill={C.charcoal} />
+        <rect x={360} y={690} width={34} height={150} fill={C.charcoal} />
+        <g transform={`rotate(${-tap},380,850)`}><path d="M350,840 L430,840 Q440,860 420,862 L350,862 Z" fill={C.navyDeep} /></g>
+        {/* torso (black suit, white shirt) */}
+        <path d="M195,660 Q190,500 250,470 L330,470 Q380,500 375,660 Z" fill={C.navyDeep} stroke={C.slate} strokeWidth={4} />
+        <path d="M280,472 L300,472 L298,560 L282,560 Z" fill={C.cream} />
+        {/* crossed arms */}
+        <path d="M205,560 Q280,530 368,575 L362,610 Q280,575 212,600 Z" fill="#141F30" stroke={C.slate} strokeWidth={3} />
+        <circle cx={360} cy={585} r={17} fill={skin} />
+        <circle cx={215} cy={588} r={17} fill={skin} />
+        {/* head */}
+        <circle cx={292} cy={400} r={64} fill={skin} />
+        <circle cx={292} cy={400} r={64} fill="#D8574A" opacity={0.42 * anger} />
+        <path d="M352,398 Q372,412 352,422" fill={skin} />
+        {/* grey beard */}
+        <path d="M232,405 Q236,520 300,540 Q356,515 352,428 Q330,455 292,452 Q255,450 232,405 Z" fill="#C9CCD1" />
+        <path d="M300,462 Q318,470 334,462" stroke="#8C8F95" strokeWidth={5} fill="none" />
+        {/* glasses + eye + brow */}
+        <circle cx={322} cy={396} r={17} fill="none" stroke={C.charcoal} strokeWidth={4} />
+        <line x1={305} y1={393} x2={262} y2={386} stroke={C.charcoal} strokeWidth={4} />
+        <circle cx={326} cy={398} r={4.5} fill={C.navyDeep} />
+        <path d={`M304,${374 - 2} L344,${374 + brow * 0.6}`} stroke="#8C8F95" strokeWidth={8} strokeLinecap="round" />
+        {/* black hat */}
+        <ellipse cx={292} cy={350} rx={96} ry={16} fill={C.navyDeep} />
+        <path d="M234,350 L240,280 Q292,262 344,280 L350,350 Z" fill={C.navyDeep} />
+        <path d="M262,276 Q292,292 322,276" stroke="#1D2A3E" strokeWidth={6} fill="none" />
+        <rect x={236} y={330} width={112} height={12} fill="#1D2A3E" />
+        {/* agitation marks */}
+        <g opacity={p(t, at - 0.1, 0.3)}>
+          {[0, 1, 2].map((i) => {
+            const a = (-60 + i * 45) * (Math.PI / 180);
+            const r0 = 140 + Math.sin(t * 14 + i) * 6;
+            return <line key={i} x1={300 + Math.cos(a) * r0} y1={330 + Math.sin(a) * r0 * 0.7} x2={300 + Math.cos(a) * (r0 + 45)} y2={330 + Math.sin(a) * (r0 + 45) * 0.7} stroke={C.amber} strokeWidth={10} strokeLinecap="round" />;
+          })}
+        </g>
+      </g>
+    </g>
+  );
+};
+
 export const VISUALS: Record<string, React.FC<VP>> = {
   siddur: Siddur,
   speed: Speed,
   generations: Generations,
   gauge: Gauge,
+  shul: Shul,
   storm: Storm,
   spark: Spark,
   path: Path,
