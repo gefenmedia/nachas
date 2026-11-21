@@ -168,15 +168,17 @@ export const NarratorHead: React.FC<{smile: number}> = ({smile}) => {
       <path d="M-30,-330 q8,10 0,22 M0,-300 q8,10 0,22 M30,-320 q8,10 0,22 M-14,-280 q6,8 0,16" stroke={N.beardTips} strokeWidth={3} fill="none" opacity={0.6} />
       {/* big smile */}
       <path d={`M20,-404 Q36,${-386 + 4 * smile} 54,-404 Z`} fill="#FFFFFF" stroke="#7A4A3A" strokeWidth={2} />
-      {/* thick dark eyebrows */}
-      <path d="M14,-462 Q32,-470 50,-462" stroke={N.hair} strokeWidth={9} strokeLinecap="round" fill="none" />
-      {/* eye */}
-      <circle cx={34} cy={-440} r={5} fill={N.hair} />
-      {/* round gold glasses */}
-      <circle cx={34} cy={-440} r={17} fill="none" stroke={N.glasses} strokeWidth={4} />
-      <ellipse cx={64} cy={-440} rx={8} ry={16} fill="none" stroke={N.glasses} strokeWidth={4} />
-      <line x1={51} y1={-442} x2={56} y2={-442} stroke={N.glasses} strokeWidth={4} />
-      <line x1={17} y1={-442} x2={-14} y2={-436} stroke={N.glasses} strokeWidth={3} />
+      {/* thick dark eyebrows (both eyes, 3/4 view) */}
+      <path d="M2,-462 Q16,-470 30,-463" stroke={N.hair} strokeWidth={8} strokeLinecap="round" fill="none" />
+      <path d="M38,-463 Q48,-469 58,-462" stroke={N.hair} strokeWidth={7} strokeLinecap="round" fill="none" />
+      {/* eyes */}
+      <circle cx={16} cy={-441} r={4.5} fill={N.hair} />
+      <circle cx={47} cy={-441} r={4} fill={N.hair} />
+      {/* round gold wire glasses: near lens, foreshortened far lens, bridge, temple arm to ear */}
+      <circle cx={16} cy={-441} r={15} fill="#FFFFFF" fillOpacity={0.12} stroke={N.glasses} strokeWidth={3} />
+      <ellipse cx={47} cy={-441} rx={11} ry={14} fill="#FFFFFF" fillOpacity={0.12} stroke={N.glasses} strokeWidth={3} />
+      <path d="M31,-443 Q33.5,-447 36,-443" stroke={N.glasses} strokeWidth={2.5} fill="none" />
+      <line x1={1} y1={-443} x2={-16} y2={-437} stroke={N.glasses} strokeWidth={2.5} />
       {/* full curly hair, swept up and back (drawn over the head) */}
       <path d="M-60,-418 Q-74,-470 -48,-506 Q-14,-536 28,-526 Q58,-516 60,-482 Q44,-490 26,-484 Q4,-480 -18,-478 Q-40,-470 -44,-444 Q-50,-428 -60,-418 Z" fill={N.hair} />
       {[[-50, -496, 18], [-26, -518, 20], [4, -526, 19], [32, -518, 16], [52, -498, 13], [-62, -470, 15], [-58, -444, 13]].map(([cx, cy, r], i) => (
