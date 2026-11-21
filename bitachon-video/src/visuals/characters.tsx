@@ -148,6 +148,8 @@ export const OldMan: React.FC<Omit<BodyProps, 'jacket' | 'shirt' | 'pants' | 'sk
 /* ---------------------------- narrator ----------------------------- */
 export const NarratorHead: React.FC<{smile: number}> = ({smile}) => {
   const N = NARRATOR;
+  // Front-facing head (reads better than 3/4 for glasses + beard + peyos).
+  const cx = 6, cy = -432;
   return (
     <g>
       <defs>
@@ -157,42 +159,47 @@ export const NarratorHead: React.FC<{smile: number}> = ({smile}) => {
           <stop offset="100%" stopColor={N.beardTips} />
         </linearGradient>
       </defs>
-      <circle cx={0} cy={-430} r={60} fill={N.skin} />
-      {/* nose */}
-      <path d="M58,-438 Q78,-418 58,-404" fill={N.skin} />
-      {/* ear + curly sidelock (peyos) */}
-      <ellipse cx={-26} cy={-428} rx={11} ry={16} fill={N.skin} stroke="#D4A887" strokeWidth={3} />
-      <path d="M-40,-446 q-14,10 0,20 q14,10 0,20 q-14,10 0,20 q14,10 0,20 q-12,8 -2,16" fill="none" stroke={N.hair} strokeWidth={9} strokeLinecap="round" />
+      {/* ears */}
+      <ellipse cx={cx - 58} cy={cy - 2} rx={10} ry={15} fill={N.skin} stroke="#D4A887" strokeWidth={3} />
+      <ellipse cx={cx + 58} cy={cy - 2} rx={10} ry={15} fill={N.skin} stroke="#D4A887" strokeWidth={3} />
+      {/* face */}
+      <ellipse cx={cx} cy={cy} rx={56} ry={62} fill={N.skin} />
+      {/* curly sidelocks (peyos) in front of each ear */}
+      <path d={`M${cx - 54},${cy - 12} q-12,9 0,18 q12,9 0,18 q-12,9 0,18 q12,9 0,18 q-10,8 -2,15`} fill="none" stroke={N.hair} strokeWidth={8} strokeLinecap="round" />
+      <path d={`M${cx + 54},${cy - 12} q12,9 0,18 q-12,9 0,18 q12,9 0,18 q-12,9 0,18 q10,8 2,15`} fill="none" stroke={N.hair} strokeWidth={8} strokeLinecap="round" />
       {/* long full beard with lighter tips */}
-      <path d="M-46,-428 Q-70,-330 -40,-262 Q-4,-232 30,-252 Q72,-300 62,-412 Q44,-392 10,-392 Q-24,-394 -46,-428 Z" fill="url(#narrator-beard)" />
-      <path d="M-30,-330 q8,10 0,22 M0,-300 q8,10 0,22 M30,-320 q8,10 0,22 M-14,-280 q6,8 0,16" stroke={N.beardTips} strokeWidth={3} fill="none" opacity={0.6} />
-      {/* big smile */}
-      <path d={`M20,-404 Q36,${-386 + 4 * smile} 54,-404 Z`} fill="#FFFFFF" stroke="#7A4A3A" strokeWidth={2} />
-      {/* thick dark eyebrows (both eyes, 3/4 view) */}
-      <path d="M2,-462 Q16,-470 30,-463" stroke={N.hair} strokeWidth={8} strokeLinecap="round" fill="none" />
-      <path d="M38,-463 Q48,-469 58,-462" stroke={N.hair} strokeWidth={7} strokeLinecap="round" fill="none" />
+      <path d={`M${cx - 52},${cy + 2} Q${cx - 66},${cy + 110} ${cx - 34},${cy + 168} Q${cx},${cy + 196} ${cx + 34},${cy + 168} Q${cx + 66},${cy + 110} ${cx + 52},${cy + 2} Q${cx + 40},${cy + 30} ${cx},${cy + 30} Q${cx - 40},${cy + 30} ${cx - 52},${cy + 2} Z`} fill="url(#narrator-beard)" />
+      <path d={`M${cx - 30},${cy + 100} q7,10 0,22 M${cx},${cy + 130} q7,10 0,22 M${cx + 30},${cy + 100} q7,10 0,22 M${cx - 14},${cy + 160} q6,8 0,16 M${cx + 16},${cy + 158} q6,8 0,16`} stroke={N.beardTips} strokeWidth={3} fill="none" opacity={0.55} />
+      {/* moustache + big smile */}
+      <path d={`M${cx - 26},${cy + 26} Q${cx},${cy + 14} ${cx + 26},${cy + 26} Q${cx},${cy + 22} ${cx - 26},${cy + 26} Z`} fill={N.beard} />
+      <path d={`M${cx - 20},${cy + 30} Q${cx},${cy + 48 + 4 * smile} ${cx + 20},${cy + 30} Z`} fill="#FFFFFF" stroke="#7A4A3A" strokeWidth={2} />
+      {/* nose */}
+      <path d={`M${cx},${cy - 6} Q${cx + 9},${cy + 10} ${cx},${cy + 13}`} stroke="#C99A77" strokeWidth={4} fill="none" strokeLinecap="round" />
+      {/* thick dark eyebrows */}
+      <path d={`M${cx - 36},${cy - 30} Q${cx - 22},${cy - 38} ${cx - 8},${cy - 31}`} stroke={N.hair} strokeWidth={8} strokeLinecap="round" fill="none" />
+      <path d={`M${cx + 8},${cy - 31} Q${cx + 22},${cy - 38} ${cx + 36},${cy - 30}`} stroke={N.hair} strokeWidth={8} strokeLinecap="round" fill="none" />
       {/* eyes */}
-      <circle cx={16} cy={-441} r={4.5} fill={N.hair} />
-      <circle cx={47} cy={-441} r={4} fill={N.hair} />
-      {/* round gold wire glasses: near lens, foreshortened far lens, bridge, temple arm to ear */}
-      <circle cx={16} cy={-441} r={15} fill="#FFFFFF" fillOpacity={0.12} stroke={N.glasses} strokeWidth={3} />
-      <ellipse cx={47} cy={-441} rx={11} ry={14} fill="#FFFFFF" fillOpacity={0.12} stroke={N.glasses} strokeWidth={3} />
-      <path d="M31,-443 Q33.5,-447 36,-443" stroke={N.glasses} strokeWidth={2.5} fill="none" />
-      <line x1={1} y1={-443} x2={-16} y2={-437} stroke={N.glasses} strokeWidth={2.5} />
-      {/* full curly hair, swept up and back (drawn over the head) */}
-      <path d="M-60,-418 Q-74,-470 -48,-506 Q-14,-536 28,-526 Q58,-516 60,-482 Q44,-490 26,-484 Q4,-480 -18,-478 Q-40,-470 -44,-444 Q-50,-428 -60,-418 Z" fill={N.hair} />
-      {[[-50, -496, 18], [-26, -518, 20], [4, -526, 19], [32, -518, 16], [52, -498, 13], [-62, -470, 15], [-58, -444, 13]].map(([cx, cy, r], i) => (
-        <circle key={i} cx={cx} cy={cy} r={r} fill={N.hair} />
+      <circle cx={cx - 21} cy={cy - 12} r={4.5} fill={N.hair} />
+      <circle cx={cx + 21} cy={cy - 12} r={4.5} fill={N.hair} />
+      {/* round gold wire glasses */}
+      <circle cx={cx - 21} cy={cy - 12} r={16} fill="#FFFFFF" fillOpacity={0.12} stroke={N.glasses} strokeWidth={3} />
+      <circle cx={cx + 21} cy={cy - 12} r={16} fill="#FFFFFF" fillOpacity={0.12} stroke={N.glasses} strokeWidth={3} />
+      <path d={`M${cx - 5},${cy - 14} Q${cx},${cy - 19} ${cx + 5},${cy - 14}`} stroke={N.glasses} strokeWidth={2.5} fill="none" />
+      <line x1={cx - 37} y1={cy - 14} x2={cx - 54} y2={cy - 10} stroke={N.glasses} strokeWidth={2.5} />
+      <line x1={cx + 37} y1={cy - 14} x2={cx + 54} y2={cy - 10} stroke={N.glasses} strokeWidth={2.5} />
+      {/* full curly hair, swept up, high forehead */}
+      <path d={`M${cx - 58},${cy - 20} Q${cx - 66},${cy - 70} ${cx - 36},${cy - 92} Q${cx},${cy - 112} ${cx + 36},${cy - 92} Q${cx + 66},${cy - 70} ${cx + 58},${cy - 20} Q${cx + 50},${cy - 50} ${cx + 30},${cy - 54} Q${cx},${cy - 58} ${cx - 30},${cy - 54} Q${cx - 50},${cy - 50} ${cx - 58},${cy - 20} Z`} fill={N.hair} />
+      {[[-48, -76, 17], [-24, -96, 19], [6, -104, 20], [36, -96, 18], [56, -74, 15], [-60, -48, 12], [62, -48, 12]].map(([dx, dy, r], i) => (
+        <circle key={i} cx={cx + dx} cy={cy + dy} r={r} fill={N.hair} />
       ))}
-      {[[-34, -506], [-6, -514], [22, -508], [-50, -476]].map(([cx, cy], i) => (
-        <path key={`c${i}`} d={`M${cx - 8},${cy} q8,-10 16,0`} stroke="#4A3428" strokeWidth={3} fill="none" />
+      {[[-30, -90], [0, -98], [30, -90]].map(([dx, dy], i) => (
+        <path key={`c${i}`} d={`M${cx + dx - 8},${cy + dy} q8,-10 16,0`} stroke="#4A3428" strokeWidth={3} fill="none" />
       ))}
-      {/* black kippah */}
-      {N.head === 'kippah' && <path d="M-46,-522 Q-10,-556 30,-534 Q-8,-540 -46,-522 Z" fill={N.kippah} />}
+      {N.head === 'kippah' && <path d={`M${cx - 36},${cy - 112} Q${cx},${cy - 140} ${cx + 36},${cy - 112} Q${cx},${cy - 120} ${cx - 36},${cy - 112} Z`} fill={N.kippah} />}
       {N.head === 'hat' && (
         <g>
-          <ellipse cx={0} cy={-478} rx={92} ry={15} fill={C.navyDeep} />
-          <path d="M-56,-478 L-50,-548 Q0,-566 50,-548 L56,-478 Z" fill={C.navyDeep} />
+          <ellipse cx={cx} cy={cy - 96} rx={92} ry={15} fill={C.navyDeep} />
+          <path d={`M${cx - 56},${cy - 96} L${cx - 50},${cy - 166} Q${cx},${cy - 184} ${cx + 50},${cy - 166} L${cx + 56},${cy - 96} Z`} fill={C.navyDeep} />
         </g>
       )}
     </g>
