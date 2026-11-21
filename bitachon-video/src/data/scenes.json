@@ -1,0 +1,1130 @@
+[
+ {
+  "id": "s01",
+  "startMs": 0,
+  "endMs": 4800,
+  "line": "And there was a 14-year-old boy who was leading the davening.",
+  "visual": "siddur",
+  "trigger": "davening",
+  "triggerMs": 3600,
+  "stamps": [
+   {
+    "atMs": 720,
+    "text": "14",
+    "style": "number"
+   }
+  ],
+  "pulsesMs": [
+   3600
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "And there was a",
+   "14-year-old boy",
+   "who was leading",
+   "the davening."
+  ]
+ },
+ {
+  "id": "s02",
+  "startMs": 4800,
+  "endMs": 6400,
+  "line": "And he went fast.",
+  "visual": "speed",
+  "trigger": "fast",
+  "triggerMs": 5520,
+  "stamps": [
+   {
+    "atMs": 6000,
+    "text": "fast.",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [],
+  "sfx": null,
+  "captionChunks": [
+   "And he went",
+   "fast."
+  ]
+ },
+ {
+  "id": "s03",
+  "startMs": 6400,
+  "endMs": 16880,
+  "line": "And I saw there was this man, probably in his 60s, and I could see he was very frustrated with how fast this boy was going.",
+  "visual": "generations",
+  "trigger": "60s",
+  "triggerMs": 9200,
+  "stamps": [
+   {
+    "atMs": 9200,
+    "text": "60",
+    "style": "number"
+   },
+   {
+    "atMs": 13760,
+    "text": "frustrated",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [
+   14080
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "And I saw there",
+   "was this man,",
+   "probably in his 60s,",
+   "and I could",
+   "see he was very",
+   "frustrated with",
+   "how fast this",
+   "boy was going."
+  ]
+ },
+ {
+  "id": "s04",
+  "startMs": 16880,
+  "endMs": 22228,
+  "line": "And I noticed at the end of the davening, he was approaching the boy to give him. Rebuke.",
+  "visual": "storm",
+  "trigger": "rebuke",
+  "triggerMs": 21188,
+  "stamps": [
+   {
+    "atMs": 21828,
+    "text": "rebuke",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [],
+  "sfx": null,
+  "captionChunks": [
+   "And I noticed",
+   "at the end of",
+   "the davening,",
+   "he was approaching the",
+   "boy to give him.",
+   "Rebuke."
+  ]
+ },
+ {
+  "id": "s05",
+  "startMs": 22228,
+  "endMs": 30708,
+  "line": "So I quickly ran over and I said, Wow, thank you so much to this boy. I said, Thank you, Chazak u'Baruch. Amazing.",
+  "visual": "spark",
+  "trigger": "thank you",
+  "triggerMs": 25668,
+  "stamps": [
+   {
+    "atMs": 27908,
+    "text": "Chazak u'Baruch",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [
+   25108,
+   29428
+  ],
+  "sfx": "soft-tick",
+  "captionChunks": [
+   "So I quickly",
+   "ran over and",
+   "I said,",
+   "Wow, thank you",
+   "so much to",
+   "this boy.",
+   "I said,",
+   "Thank you,",
+   "Chazak u'Baruch.",
+   "Amazing."
+  ]
+ },
+ {
+  "id": "s06",
+  "startMs": 30708,
+  "endMs": 38708,
+  "line": "And the old man started saying, No, no. And I took this old man, I took him into the corner and I said to him, Don't do that.",
+  "visual": "storm",
+  "trigger": "No, no",
+  "triggerMs": 32388,
+  "stamps": [
+   {
+    "atMs": 38068,
+    "text": "Don't.",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [
+   35748
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "And the old man",
+   "started saying,",
+   "No, no.",
+   "And I took this",
+   "old man,",
+   "I took him into",
+   "the corner",
+   "and I said to",
+   "him, Don't do",
+   "that."
+  ]
+ },
+ {
+  "id": "s07",
+  "startMs": 38708,
+  "endMs": 47711,
+  "line": "And he said, What do you mean? He was going too fast. I said to him, he was not going too fast. He was going the pace that he needed to go.",
+  "visual": "path",
+  "trigger": "pace",
+  "triggerMs": 45551,
+  "stamps": [
+   {
+    "atMs": 46271,
+    "text": "his pace",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [
+   40468,
+   43551
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "And he said,",
+   "What do you mean?",
+   "He was going",
+   "too fast.",
+   "I said to him,",
+   "he was not going",
+   "too fast.",
+   "He was going",
+   "the pace that",
+   "he needed to",
+   "go."
+  ]
+ },
+ {
+  "id": "s08",
+  "startMs": 47711,
+  "endMs": 54511,
+  "line": "And I said to him, Hashem doesn't want you to go and rebuke this boy for going too fast.",
+  "visual": "rays",
+  "trigger": "Hashem",
+  "triggerMs": 48751,
+  "stamps": [],
+  "pulsesMs": [
+   51151
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "And I said to",
+   "him, Hashem",
+   "doesn't want you",
+   "to go and",
+   "rebuke this",
+   "boy for going",
+   "too fast."
+  ]
+ },
+ {
+  "id": "s09",
+  "startMs": 54511,
+  "endMs": 59943,
+  "line": "And he said to me, What are you a navi? You're you're a prophet now. You know what Hashem wants?",
+  "visual": "question",
+  "trigger": "navi",
+  "triggerMs": 55951,
+  "stamps": [
+   {
+    "atMs": 57151,
+    "text": "a navi?",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [
+   57791,
+   58751
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "And he said to",
+   "me, What are you",
+   "a navi?",
+   "You're you're a prophet",
+   "now.",
+   "You know what Hashem",
+   "wants?"
+  ]
+ },
+ {
+  "id": "s10",
+  "startMs": 59943,
+  "endMs": 70663,
+  "line": "I said, No, but I'm willing to go to hell because I protected that boy from you killing him with your tochacha, with your rebuke.",
+  "visual": "shield",
+  "trigger": "protected",
+  "triggerMs": 63383,
+  "stamps": [
+   {
+    "atMs": 64023,
+    "text": "protected",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [
+   68023,
+   69703
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "I said,",
+   "No, but I'm willing",
+   "to go to hell",
+   "because I protected",
+   "that boy from",
+   "you killing",
+   "him with your",
+   "tochacha, with",
+   "your rebuke."
+  ]
+ },
+ {
+  "id": "s11",
+  "startMs": 70663,
+  "endMs": 76183,
+  "line": "And then I told this man, I said, Look, you come from a different generation. Yeah?",
+  "visual": "generations",
+  "trigger": "generation",
+  "triggerMs": 74103,
+  "stamps": [
+   {
+    "atMs": 74103,
+    "text": "a different generation",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [],
+  "sfx": null,
+  "captionChunks": [
+   "And then I told",
+   "this man,",
+   "I said,",
+   "Look, you come",
+   "from a different",
+   "generation.",
+   "Yeah?"
+  ]
+ },
+ {
+  "id": "s12",
+  "startMs": 76183,
+  "endMs": 81665,
+  "line": "Do you understand what it means for a 14-year-old boy To be davening with a minyan today?",
+  "visual": "minyan",
+  "trigger": "minyan",
+  "triggerMs": 80625,
+  "stamps": [
+   {
+    "atMs": 81185,
+    "text": "with a minyan",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [
+   77703
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "Do you understand",
+   "what it means for",
+   "a 14-year-old boy",
+   "To be davening",
+   "with a minyan",
+   "today?"
+  ]
+ },
+ {
+  "id": "s13",
+  "startMs": 81665,
+  "endMs": 89185,
+  "line": "You have you didn't have TikTok, you didn't have social media, you didn't have internet, you didn't have AI, you had none of that.",
+  "visual": "screens",
+  "trigger": "TikTok",
+  "triggerMs": 82945,
+  "stamps": [
+   {
+    "atMs": 82945,
+    "text": "TikTok",
+    "style": "chip"
+   },
+   {
+    "atMs": 84625,
+    "text": "social media",
+    "style": "chip"
+   },
+   {
+    "atMs": 86225,
+    "text": "internet",
+    "style": "chip"
+   },
+   {
+    "atMs": 87185,
+    "text": "AI",
+    "style": "chip"
+   }
+  ],
+  "pulsesMs": [],
+  "sfx": null,
+  "captionChunks": [
+   "You have you",
+   "didn't have TikTok,",
+   "you didn't have",
+   "social media,",
+   "you didn't have internet,",
+   "you didn't have AI,",
+   "you had none of",
+   "that."
+  ]
+ },
+ {
+  "id": "s14",
+  "startMs": 89185,
+  "endMs": 95505,
+  "line": "I said, Were you are you willing to give that boy a hug? Were you willing to give him a hug after you told him off?",
+  "visual": "embrace",
+  "trigger": "hug",
+  "triggerMs": 91505,
+  "stamps": [
+   {
+    "atMs": 93985,
+    "text": "a hug?",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [
+   91505,
+   94465
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "I said,",
+   "Were you are you",
+   "willing to give that",
+   "boy a hug?",
+   "Were you willing to",
+   "give him a hug",
+   "after you told",
+   "him off?"
+  ]
+ },
+ {
+  "id": "s15",
+  "startMs": 95505,
+  "endMs": 99554,
+  "line": "He said, No, I don't give men hugs, it's I'm homophobic.",
+  "visual": "wall",
+  "trigger": "No",
+  "triggerMs": 95905,
+  "stamps": [],
+  "pulsesMs": [
+   97105,
+   98385
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "He said,",
+   "No, I don't give",
+   "men hugs,",
+   "it's I'm homophobic."
+  ]
+ },
+ {
+  "id": "s16",
+  "startMs": 99554,
+  "endMs": 109554,
+  "line": "I said, Really? You can't give another Jew a hug because you have an issue of of homophobia. W wha wha where is that coming from?",
+  "visual": "wallcrack",
+  "trigger": "another Jew",
+  "triggerMs": 101394,
+  "stamps": [
+   {
+    "atMs": 102354,
+    "text": "another Jew",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [
+   107714
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "I said, Really?",
+   "You can't give",
+   "another Jew a",
+   "hug because",
+   "you have an issue",
+   "of of homophobia.",
+   "W wha wha where",
+   "is that coming",
+   "from?"
+  ]
+ },
+ {
+  "id": "s17",
+  "startMs": 109554,
+  "endMs": 117074,
+  "line": "And he told me that his Rebbe, when he was a boy, he would the the Rebbe would give them hugs and then they w he would feel them.",
+  "visual": "candle",
+  "trigger": "Rebbe",
+  "triggerMs": 110674,
+  "stamps": [],
+  "pulsesMs": [
+   111714,
+   115954
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "And he told me",
+   "that his Rebbe,",
+   "when he was a",
+   "boy, he would",
+   "the the Rebbe",
+   "would give them",
+   "hugs and then",
+   "they w he would",
+   "feel them."
+  ]
+ },
+ {
+  "id": "s18",
+  "startMs": 117074,
+  "endMs": 136014,
+  "line": "And I said to this man, I said, You see, There's your problem. It's not you that wants to shout at that boy. It's your Rebbe. Your Rebbe who had absolutely no business being a Rebbe, who had no business being in that position. And you are now carrying his message forward.",
+  "visual": "chain",
+  "trigger": "your problem",
+  "triggerMs": 119774,
+  "stamps": [
+   {
+    "atMs": 124894,
+    "text": "not you",
+    "style": "word"
+   },
+   {
+    "atMs": 134734,
+    "text": "carried forward",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [
+   120094,
+   122334,
+   126734
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "And I said to",
+   "this man,",
+   "I said,",
+   "You see,",
+   "There's your problem.",
+   "It's not you",
+   "that wants to shout",
+   "at that boy.",
+   "It's your Rebbe.",
+   "Your Rebbe who",
+   "had absolutely no",
+   "business being",
+   "a Rebbe,",
+   "who had no business",
+   "being in that",
+   "position.",
+   "And you are now",
+   "carrying his",
+   "message forward."
+  ]
+ },
+ {
+  "id": "s19",
+  "startMs": 136014,
+  "endMs": 140697,
+  "line": "It's not coming from your neshama, because your neshama wants to hug that boy.",
+  "visual": "soul",
+  "trigger": "neshama",
+  "triggerMs": 137054,
+  "stamps": [
+   {
+    "atMs": 139454,
+    "text": "your neshama",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [
+   137054
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "It's not coming",
+   "from your neshama,",
+   "because your neshama",
+   "wants to hug",
+   "that boy."
+  ]
+ },
+ {
+  "id": "s20",
+  "startMs": 140697,
+  "endMs": 147177,
+  "line": "And then I gave the man a hug, and as much as he tightened up and he he he was uncomfortable,",
+  "visual": "embrace",
+  "trigger": "hug",
+  "triggerMs": 141897,
+  "stamps": [],
+  "pulsesMs": [
+   143977,
+   146137
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "And then I gave",
+   "the man a hug,",
+   "and as much as",
+   "he tightened",
+   "up and he",
+   "he he was uncomfortable,"
+  ]
+ },
+ {
+  "id": "s21",
+  "startMs": 147177,
+  "endMs": 153177,
+  "line": "I noticed that something broke, something melted, and he had tears in his eyes.",
+  "visual": "melt",
+  "trigger": "melted",
+  "triggerMs": 149977,
+  "stamps": [
+   {
+    "atMs": 151017,
+    "text": "something melted",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [
+   148457,
+   151497
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "I noticed that",
+   "something broke,",
+   "something melted,",
+   "and he had tears",
+   "in his eyes."
+  ]
+ },
+ {
+  "id": "s22",
+  "startMs": 153177,
+  "endMs": 155577,
+  "line": "Because his neshama was waking up.",
+  "visual": "sunrise",
+  "trigger": "waking up",
+  "triggerMs": 154617,
+  "stamps": [],
+  "pulsesMs": [
+   154617
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "Because his neshama",
+   "was waking up."
+  ]
+ },
+ {
+  "id": "s23",
+  "startMs": 155577,
+  "endMs": 163401,
+  "line": "We need to wake up if you want other people To wake up, you need to wake up first.",
+  "visual": "sunrise",
+  "trigger": "wake up first",
+  "triggerMs": 161081,
+  "stamps": [
+   {
+    "atMs": 161562,
+    "text": "wake up first",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [
+   158617
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "We need to wake",
+   "up if",
+   "you want other",
+   "people",
+   "To wake up,",
+   "you need to wake",
+   "up first."
+  ]
+ },
+ {
+  "id": "s24",
+  "startMs": 163401,
+  "endMs": 171001,
+  "line": "You could teach Torah till you're blue in the face, but if the people that you're talking to are not emotionally well, if they're not",
+  "visual": "siddur",
+  "trigger": "Torah",
+  "triggerMs": 164042,
+  "stamps": [],
+  "pulsesMs": [
+   164921,
+   169081
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "You could teach Torah",
+   "till you're blue in",
+   "the face,",
+   "but if the people",
+   "that you're talking",
+   "to are not",
+   "emotionally well,",
+   "if they're not going"
+  ]
+ },
+ {
+  "id": "s25",
+  "startMs": 171001,
+  "endMs": 177482,
+  "line": "going home and being a good husband or a good wife or a good parent or a good neighbor,",
+  "visual": "home",
+  "trigger": "home",
+  "triggerMs": 171321,
+  "stamps": [],
+  "pulsesMs": [
+   175241,
+   176601
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "home and being",
+   "a good husband",
+   "or a good wife",
+   "or a good parent",
+   "or a good neighbor,"
+  ]
+ },
+ {
+  "id": "s26",
+  "startMs": 177482,
+  "endMs": 181968,
+  "line": "if they're not feeling a deep love for themselves and everyone around them,",
+  "visual": "heart",
+  "trigger": "love",
+  "triggerMs": 179248,
+  "stamps": [],
+  "pulsesMs": [
+   180769
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "if they're not",
+   "feeling a deep",
+   "love for themselves",
+   "and everyone around",
+   "them, then your"
+  ]
+ },
+ {
+  "id": "s27",
+  "startMs": 181968,
+  "endMs": 188368,
+  "line": "then your Torah is poison. I'm sorry to say it. Actually, no, I'm not. Your Torah is poison.",
+  "visual": "vessel",
+  "trigger": "poison",
+  "triggerMs": 182928,
+  "stamps": [],
+  "pulsesMs": [
+   183568,
+   184448,
+   182928
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "Torah is poison.",
+   "I'm sorry to say",
+   "it.",
+   "Actually, no,",
+   "I'm not.",
+   "Your Torah is",
+   "poison."
+  ]
+ },
+ {
+  "id": "s28",
+  "startMs": 188368,
+  "endMs": 191008,
+  "line": "You're part of the problem, not part of the solution.",
+  "visual": "path",
+  "trigger": "solution",
+  "triggerMs": 190209,
+  "stamps": [
+   {
+    "atMs": 190608,
+    "text": "the solution",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [],
+  "sfx": null,
+  "captionChunks": [
+   "You're part of the",
+   "problem, not part",
+   "of the solution."
+  ]
+ },
+ {
+  "id": "s29",
+  "startMs": 191008,
+  "endMs": 197396,
+  "line": "People don't need to be told what to do. They need to be shown how to love, love themselves and love other people.",
+  "visual": "lantern",
+  "trigger": "shown",
+  "triggerMs": 193648,
+  "stamps": [
+   {
+    "atMs": 194368,
+    "text": "shown how to love",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [
+   195008
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "People don't need",
+   "to be told what",
+   "to do.",
+   "They need to be",
+   "shown how to",
+   "love, love themselves",
+   "and love other",
+   "people."
+  ]
+ },
+ {
+  "id": "s30",
+  "startMs": 197396,
+  "endMs": 209796,
+  "line": "And when they do, then they're going to do what Hashem wants naturally because they're going to have such a love for Him. They're going to have such a deep love for Him because they're going to tap into the part of them that always wanted Hashem.",
+  "visual": "seed",
+  "trigger": "naturally",
+  "triggerMs": 200596,
+  "stamps": [
+   {
+    "atMs": 201316,
+    "text": "naturally",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [
+   204836,
+   208276
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "And when they do,",
+   "then they're going to",
+   "do what Hashem",
+   "wants naturally because",
+   "they're going to have",
+   "such a love for",
+   "Him.",
+   "They're going to have",
+   "such a deep",
+   "love for Him",
+   "because they're going to",
+   "tap into the",
+   "part of them that",
+   "always wanted Hashem."
+  ]
+ },
+ {
+  "id": "s31",
+  "startMs": 209796,
+  "endMs": 215991,
+  "line": "There's a part of us deep inside that we need to get to in order to awaken the real love that we have.",
+  "visual": "rings",
+  "trigger": "deep inside",
+  "triggerMs": 210596,
+  "stamps": [],
+  "pulsesMs": [
+   213556,
+   214516
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "There's a part of",
+   "us deep inside",
+   "that we need to",
+   "get to in",
+   "order to awaken",
+   "the real love",
+   "that we have."
+  ]
+ },
+ {
+  "id": "s32",
+  "startMs": 215991,
+  "endMs": 224471,
+  "line": "where we do what we do for Hashem not because we feel forced, not because we feel that we're going to be punished, not because we feel dirty if we don't,",
+  "visual": "chainbreak",
+  "trigger": "not because",
+  "triggerMs": 217991,
+  "stamps": [
+   {
+    "atMs": 219751,
+    "text": "not forced",
+    "style": "word"
+   },
+   {
+    "atMs": 222631,
+    "text": "not punished",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [],
+  "sfx": null,
+  "captionChunks": [
+   "where we do what",
+   "we do for Hashem",
+   "not because we feel",
+   "forced, not because",
+   "we feel that",
+   "we're going to be",
+   "punished, not because",
+   "we feel dirty",
+   "if we don't,"
+  ]
+ },
+ {
+  "id": "s33",
+  "startMs": 224471,
+  "endMs": 228951,
+  "line": "but because we have such a burning desire to be with Hashem and",
+  "visual": "flame",
+  "trigger": "burning desire",
+  "triggerMs": 225911,
+  "stamps": [
+   {
+    "atMs": 227431,
+    "text": "a burning desire",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [
+   227832
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "but because we",
+   "have such a",
+   "burning desire",
+   "to be with Hashem",
+   "and because we know"
+  ]
+ },
+ {
+  "id": "s34",
+  "startMs": 228951,
+  "endMs": 233948,
+  "line": "because we know that the only reason He tells us to do something is only because He loves us so deeply.",
+  "visual": "heart",
+  "trigger": "loves us",
+  "triggerMs": 232471,
+  "stamps": [
+   {
+    "atMs": 232791,
+    "text": "He loves us",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [],
+  "sfx": null,
+  "captionChunks": [
+   "that the only reason",
+   "He tells us to",
+   "do something is only",
+   "because He loves",
+   "us so deeply."
+  ]
+ },
+ {
+  "id": "s35",
+  "startMs": 233948,
+  "endMs": 244188,
+  "line": "And the only reason we would ever do anything against Him is only because we don't feel that. It's only because we haven't gone deep enough within ourselves to the place where we have",
+  "visual": "rings",
+  "trigger": "deep enough",
+  "triggerMs": 240668,
+  "stamps": [],
+  "pulsesMs": [
+   238268,
+   240668
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "And the only reason",
+   "we would ever",
+   "do anything against",
+   "Him is only",
+   "because we don't",
+   "feel that.",
+   "It's only because we",
+   "haven't gone deep",
+   "enough within ourselves",
+   "to the place",
+   "where we have absolutely"
+  ]
+ },
+ {
+  "id": "s36",
+  "startMs": 244188,
+  "endMs": 251628,
+  "line": "absolutely zero doubt about how much He loves us. And we have zero doubt about anything other than the fact that",
+  "visual": "mountain",
+  "trigger": "zero doubt",
+  "triggerMs": 244748,
+  "stamps": [
+   {
+    "atMs": 246108,
+    "text": "zero doubt",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [],
+  "sfx": null,
+  "captionChunks": [
+   "zero doubt",
+   "about how much",
+   "He loves us.",
+   "And we have zero",
+   "doubt about anything",
+   "other than the fact",
+   "that our greatest"
+  ]
+ },
+ {
+  "id": "s37",
+  "startMs": 251628,
+  "endMs": 255788,
+  "line": "our greatest pleasure, the greatest pleasure we could ever have, is being with Him.",
+  "visual": "soul",
+  "trigger": "greatest pleasure",
+  "triggerMs": 251788,
+  "stamps": [],
+  "pulsesMs": [
+   254748
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "pleasure, the greatest",
+   "pleasure we could ever",
+   "have, is being with",
+   "Him."
+  ]
+ },
+ {
+  "id": "s38",
+  "startMs": 255788,
+  "endMs": 262316,
+  "line": "And that the world can't offer us anything. that comes even close to what we already have.",
+  "visual": "globe",
+  "trigger": "world",
+  "triggerMs": 256268,
+  "stamps": [],
+  "pulsesMs": [
+   257548,
+   261116
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "And that the world",
+   "can't offer us",
+   "anything.",
+   "that comes even",
+   "close to",
+   "what we already",
+   "have."
+  ]
+ },
+ {
+  "id": "s39",
+  "startMs": 262316,
+  "endMs": 267357,
+  "line": "And so what we need more than anything else is a path back to who we really are.",
+  "visual": "door",
+  "trigger": "path back",
+  "triggerMs": 265036,
+  "stamps": [
+   {
+    "atMs": 266076,
+    "text": "a path back",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [
+   266076
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "And so what we",
+   "need more than anything",
+   "else is a",
+   "path back to",
+   "who we really",
+   "are."
+  ]
+ },
+ {
+  "id": "s40",
+  "startMs": 267357,
+  "endMs": 281626,
+  "line": "And that is a pure precious soul that yearns constantly to reunite with HaKadosh Baruch Hu, to reunite with its Creator, to reunite with the one that loves you more than you'll ever know.",
+  "visual": "soulrise",
+  "trigger": "pure precious soul",
+  "triggerMs": 267996,
+  "stamps": [
+   {
+    "atMs": 280071,
+    "text": "loves you more",
+    "style": "word"
+   }
+  ],
+  "pulsesMs": [
+   269996,
+   277351
+  ],
+  "sfx": null,
+  "captionChunks": [
+   "And that is a",
+   "pure precious soul",
+   "that yearns",
+   "constantly to",
+   "reunite with",
+   "HaKadosh Baruch Hu,",
+   "to reunite",
+   "with its Creator,",
+   "to reunite with",
+   "the one that loves",
+   "you more than you'll",
+   "ever know."
+  ]
+ }
+]

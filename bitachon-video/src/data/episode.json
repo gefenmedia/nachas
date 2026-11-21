@@ -1,0 +1,20 @@
+{
+ "title": "The Boy Who Davened Too Fast",
+ "slug": "boy-who-davened-too-fast",
+ "hook": {
+  "text": "Don't crush the boy who showed up.",
+  "startMs": 0,
+  "endMs": 4800
+ },
+ "narrationDurationMs": 281626,
+ "lastWordEndMs": 281599,
+ "endCardMs": 2000,
+ "cta": "Follow for more bitachon",
+ "music": {
+  "src": "music/placeholder-pad.mp3",
+  "title": "Placeholder ambient pad (generated locally with FFmpeg)",
+  "source": "Generated in this project by scripts/make-placeholder-pad.sh",
+  "license": "Original, no third-party rights; no attribution required",
+  "attribution": ""
+ }
+}
