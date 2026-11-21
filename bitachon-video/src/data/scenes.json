@@ -52,15 +52,10 @@
   "startMs": 6400,
   "endMs": 16880,
   "line": "And I saw there was this man, probably in his 60s, and I could see he was very frustrated with how fast this boy was going.",
-  "visual": "generations",
-  "trigger": "60s",
-  "triggerMs": 9200,
+  "visual": "gauge",
+  "trigger": "frustrated",
+  "triggerMs": 12240,
   "stamps": [
-   {
-    "atMs": 9200,
-    "text": "60",
-    "style": "number"
-   },
    {
     "atMs": 13760,
     "text": "frustrated",

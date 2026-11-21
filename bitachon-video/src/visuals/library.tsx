@@ -564,10 +564,42 @@ const SoulRise: React.FC<VP> = ({t, dur}) => {
   );
 };
 
+/** Pressure gauge: tension rising; needle jumps into the red on the trigger word. */
+const Gauge: React.FC<VP> = ({t, trig}) => {
+  const at = trigAt(trig, 3);
+  const base = interpolate(t, [0, at], [0.08, 0.45], clamp);
+  const jump = p(t, at - 0.05, 0.45);
+  const v = Math.min(0.97, base + jump * 0.45) + Math.sin(t * 13) * 0.012 * (0.3 + jump);
+  const ang = -120 + v * 240; // degrees, 0 = straight up
+  const cx = 500, cy = 560, R = 300;
+  const arc = (a0: number, a1: number, r: number) => {
+    const P = (a: number) => [cx + r * Math.sin((a * Math.PI) / 180), cy - r * Math.cos((a * Math.PI) / 180)];
+    const [x0, y0] = P(a0), [x1, y1] = P(a1);
+    return `M${x0},${y0} A${r},${r} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${x1},${y1}`;
+  };
+  return (
+    <g>
+      <circle cx={cx} cy={cy} r={R + 160} fill="url(#glow-gold)" opacity={0.15 + jump * 0.35} />
+      <circle cx={cx} cy={cy} r={R + 30} fill={C.navyLift} stroke={C.creamDim} strokeWidth={10} />
+      <path d={arc(-120, 40, R - 30)} fill="none" stroke={C.slate} strokeWidth={34} />
+      <path d={arc(40, 120, R - 30)} fill="none" stroke={C.amber} strokeWidth={34} opacity={0.45 + 0.55 * jump * (0.75 + 0.25 * Math.sin(t * 10))} />
+      {new Array(13).fill(0).map((_, i) => {
+        const a = ((-120 + i * 20) * Math.PI) / 180;
+        return <line key={i} x1={cx + (R - 70) * Math.sin(a)} y1={cy - (R - 70) * Math.cos(a)} x2={cx + (R - 100) * Math.sin(a)} y2={cy - (R - 100) * Math.cos(a)} stroke={C.creamDim} strokeWidth={6} strokeLinecap="round" />;
+      })}
+      <g transform={`rotate(${ang},${cx},${cy})`}>
+        <path d={`M${cx - 14},${cy} L${cx},${cy - R + 60} L${cx + 14},${cy} Z`} fill={jump > 0.5 ? C.gold : C.cream} />
+      </g>
+      <circle cx={cx} cy={cy} r={34} fill={C.gold} />
+    </g>
+  );
+};
+
 export const VISUALS: Record<string, React.FC<VP>> = {
   siddur: Siddur,
   speed: Speed,
   generations: Generations,
+  gauge: Gauge,
   storm: Storm,
   spark: Spark,
   path: Path,

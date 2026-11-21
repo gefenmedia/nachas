@@ -6,7 +6,7 @@ Hook (0:00–0:04.80): **Don't crush the boy who showed up.**
 |---|---|---|---|---|---|
 | s01 | 0:00.00–0:04.80 | siddur | davening @0:03.60 | 14 @0:00.72 | And there was a 14-year-old boy who was leading the davening. |
 | s02 | 0:04.80–0:06.40 | speed | fast @0:05.52 | fast. @0:06.00 | And he went fast. |
-| s03 | 0:06.40–0:16.88 | generations | 60s @0:09.20 | 60 @0:09.20; frustrated @0:13.76 | And I saw there was this man, probably in his 60s, and I could see he was very frustrated with how fast this boy was going. |
+| s03 | 0:06.40–0:16.88 | gauge | frustrated @0:12.24 | frustrated @0:13.76 | And I saw there was this man, probably in his 60s, and I could see he was very frustrated with how fast this boy was going. |
 | s04 | 0:16.88–0:22.23 | storm | rebuke @0:21.19 | rebuke @0:21.83 | And I noticed at the end of the davening, he was approaching the boy to give him. Rebuke. |
 | s05 | 0:22.23–0:30.71 | spark | thank you @0:25.67 | Chazak u'Baruch @0:27.91 | So I quickly ran over and I said, Wow, thank you so much to this boy. I said, Thank you, Chazak u'Baruch. Amazing. |
 | s06 | 0:30.71–0:38.71 | storm | No, no @0:32.39 | Don't. @0:38.07 | And the old man started saying, No, no. And I took this old man, I took him into the corner and I said to him, Don't do that. |
