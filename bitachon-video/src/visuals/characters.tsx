@@ -157,10 +157,6 @@ export const NarratorHead: React.FC<{smile: number}> = ({smile}) => {
           <stop offset="100%" stopColor={N.beardTips} />
         </linearGradient>
       </defs>
-      {/* curly hair mass, swept up, high forehead */}
-      {[[-46, -470, 26], [-24, -488, 26], [2, -494, 24], [-58, -446, 20], [24, -488, 18]].map(([cx, cy, r], i) => (
-        <circle key={i} cx={cx} cy={cy} r={r} fill={N.hair} />
-      ))}
       <circle cx={0} cy={-430} r={60} fill={N.skin} />
       {/* nose */}
       <path d="M58,-438 Q78,-418 58,-404" fill={N.skin} />
@@ -181,8 +177,16 @@ export const NarratorHead: React.FC<{smile: number}> = ({smile}) => {
       <ellipse cx={64} cy={-440} rx={8} ry={16} fill="none" stroke={N.glasses} strokeWidth={4} />
       <line x1={51} y1={-442} x2={56} y2={-442} stroke={N.glasses} strokeWidth={4} />
       <line x1={17} y1={-442} x2={-14} y2={-436} stroke={N.glasses} strokeWidth={3} />
+      {/* full curly hair, swept up and back (drawn over the head) */}
+      <path d="M-60,-418 Q-74,-470 -48,-506 Q-14,-536 28,-526 Q58,-516 60,-482 Q44,-490 26,-484 Q4,-480 -18,-478 Q-40,-470 -44,-444 Q-50,-428 -60,-418 Z" fill={N.hair} />
+      {[[-50, -496, 18], [-26, -518, 20], [4, -526, 19], [32, -518, 16], [52, -498, 13], [-62, -470, 15], [-58, -444, 13]].map(([cx, cy, r], i) => (
+        <circle key={i} cx={cx} cy={cy} r={r} fill={N.hair} />
+      ))}
+      {[[-34, -506], [-6, -514], [22, -508], [-50, -476]].map(([cx, cy], i) => (
+        <path key={`c${i}`} d={`M${cx - 8},${cy} q8,-10 16,0`} stroke="#4A3428" strokeWidth={3} fill="none" />
+      ))}
       {/* black kippah */}
-      {N.head === 'kippah' && <path d="M-40,-492 Q-6,-524 30,-500 Q-6,-506 -40,-492 Z" fill={N.kippah} />}
+      {N.head === 'kippah' && <path d="M-46,-522 Q-10,-556 30,-534 Q-8,-540 -46,-522 Z" fill={N.kippah} />}
       {N.head === 'hat' && (
         <g>
           <ellipse cx={0} cy={-478} rx={92} ry={15} fill={C.navyDeep} />
