@@ -2,7 +2,11 @@
  "title": "The Boy Who Davened Too Fast",
  "slug": "boy-who-davened-too-fast",
  "hook": {
-  "text": "Don't crush the boy who showed up.",
+  "text": "Don't crush him with your criticism!",
+  "highlight": [
+   "crush",
+   "criticism!"
+  ],
   "startMs": 0,
   "endMs": 4800
  },

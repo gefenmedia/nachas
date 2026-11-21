@@ -44,7 +44,7 @@ export const verticalLayout: Layout = {
   stageX: 540,
   stageY: 700,
   stageSize: 900,
-  captionY: 1150, // ~60% down: inside the 48–66% band, clear of bottom UI + right rail
+  captionY: 1185, // ~60% down: inside the 48–66% band, clear of bottom UI + right rail
   captionFontSize: 92,
   captionMaxWidth: 860, // ≥10% side margins
   hookY: 270,

@@ -82,17 +82,13 @@
   "startMs": 16880,
   "endMs": 22228,
   "line": "And I noticed at the end of the davening, he was approaching the boy to give him. Rebuke.",
-  "visual": "storm",
+  "visual": "approach",
   "trigger": "rebuke",
   "triggerMs": 21188,
-  "stamps": [
-   {
-    "atMs": 21828,
-    "text": "rebuke",
-    "style": "word"
-   }
+  "stamps": [],
+  "pulsesMs": [
+   19600
   ],
-  "pulsesMs": [],
   "sfx": null,
   "captionChunks": [
    "And I noticed",
@@ -108,16 +104,10 @@
   "startMs": 22228,
   "endMs": 30708,
   "line": "So I quickly ran over and I said, Wow, thank you so much to this boy. I said, Thank you, Chazak u'Baruch. Amazing.",
-  "visual": "spark",
+  "visual": "thanks",
   "trigger": "thank you",
   "triggerMs": 25668,
-  "stamps": [
-   {
-    "atMs": 27908,
-    "text": "Chazak u'Baruch",
-    "style": "word"
-   }
-  ],
+  "stamps": [],
   "pulsesMs": [
    25108,
    29428

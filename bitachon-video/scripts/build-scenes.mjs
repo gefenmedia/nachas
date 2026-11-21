@@ -131,7 +131,7 @@ const hookEndIdx = find(plan.hook.untilAnchor);
 const episode = {
   title: plan.title,
   slug: plan.slug,
-  hook: {text: plan.hook.text, startMs: 0, endMs: hookEndIdx >= 0 ? caps[hookEndIdx].startMs : 3000},
+  hook: {text: plan.hook.text, highlight: plan.hook.highlight ?? [], startMs: 0, endMs: hookEndIdx >= 0 ? caps[hookEndIdx].startMs : 3000},
   narrationDurationMs: durationMs,
   lastWordEndMs: caps[caps.length - 1].endMs,
   endCardMs: 2000,

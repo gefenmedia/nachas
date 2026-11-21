@@ -1,14 +1,14 @@
 # Scene list — The Boy Who Davened Too Fast
 
-Hook (0:00–0:04.80): **Don't crush the boy who showed up.**
+Hook (0:00–0:04.80): **Don't crush him with your criticism!**
 
 | # | start–end | visual | trigger | stamps | line |
 |---|---|---|---|---|---|
 | s01 | 0:00.00–0:04.80 | siddur | davening @0:03.60 | 14 @0:00.72 | And there was a 14-year-old boy who was leading the davening. |
 | s02 | 0:04.80–0:06.40 | speed | fast @0:05.52 | fast. @0:06.00 | And he went fast. |
 | s03 | 0:06.40–0:16.88 | shul | frustrated @0:12.24 | frustrated @0:13.76 | And I saw there was this man, probably in his 60s, and I could see he was very frustrated with how fast this boy was going. |
-| s04 | 0:16.88–0:22.23 | storm | rebuke @0:21.19 | rebuke @0:21.83 | And I noticed at the end of the davening, he was approaching the boy to give him. Rebuke. |
-| s05 | 0:22.23–0:30.71 | spark | thank you @0:25.67 | Chazak u'Baruch @0:27.91 | So I quickly ran over and I said, Wow, thank you so much to this boy. I said, Thank you, Chazak u'Baruch. Amazing. |
+| s04 | 0:16.88–0:22.23 | approach | rebuke @0:21.19 |  | And I noticed at the end of the davening, he was approaching the boy to give him. Rebuke. |
+| s05 | 0:22.23–0:30.71 | thanks | thank you @0:25.67 |  | So I quickly ran over and I said, Wow, thank you so much to this boy. I said, Thank you, Chazak u'Baruch. Amazing. |
 | s06 | 0:30.71–0:38.71 | storm | No, no @0:32.39 | Don't. @0:38.07 | And the old man started saying, No, no. And I took this old man, I took him into the corner and I said to him, Don't do that. |
 | s07 | 0:38.71–0:47.71 | path | pace @0:45.55 | his pace @0:46.27 | And he said, What do you mean? He was going too fast. I said to him, he was not going too fast. He was going the pace that he needed to go. |
 | s08 | 0:47.71–0:54.51 | rays | Hashem @0:48.75 |  | And I said to him, Hashem doesn't want you to go and rebuke this boy for going too fast. |

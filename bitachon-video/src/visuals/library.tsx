@@ -607,9 +607,9 @@ const Shul: React.FC<VP> = ({t, trig}) => {
   return (
     <g transform="translate(0,35)">
       {/* shul: arched window + light */}
-      <path d="M560,120 L560,330 L840,330 L840,120 A140,140 0 0 0 560,120 Z" fill={C.navyLift} stroke={C.goldSoft} strokeWidth={6} opacity={0.9} />
-      <path d="M700,-20 L700,330 M560,225 L840,225" stroke={C.goldSoft} strokeWidth={4} opacity={0.5} />
-      <circle cx={700} cy={200} r={220} fill="url(#glow-cream)" opacity={0.35} />
+      <path d="M580,195 L580,385 L820,385 L820,195 A120,120 0 0 0 580,195 Z" fill={C.navyLift} stroke={C.goldSoft} strokeWidth={6} opacity={0.9} />
+      <path d="M700,75 L700,385 M580,285 L820,285" stroke={C.goldSoft} strokeWidth={4} opacity={0.5} />
+      <circle cx={700} cy={265} r={200} fill="url(#glow-cream)" opacity={0.35} />
       <line x1={40} y1={860} x2={960} y2={860} stroke={C.slate} strokeWidth={5} />
 
       {/* boy at the amud (from behind, swaying quickly) */}

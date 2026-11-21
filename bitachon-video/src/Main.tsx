@@ -6,7 +6,10 @@ import {Stamps} from './components/Stamps';
 import {musicEnvelope} from './lib/ducking';
 import {colors, sans, serif, type Layout} from './theme';
 import type {VideoProps} from './types';
-import {Defs, VISUALS} from './visuals/library';
+import {Defs, VISUALS as BASE_VISUALS} from './visuals/library';
+import {CHARACTER_SCENES} from './visuals/characters';
+
+const VISUALS = {...BASE_VISUALS, ...CHARACTER_SCENES};
 
 const FADE_MS = 260;
 
@@ -78,7 +81,7 @@ export const Main: React.FC<VideoProps & {layout: Layout}> = ({narrationSrc, mus
         <div style={{position: 'absolute', left: layout.width * 0.08, width: layout.width * 0.84, top: layout.hookY, transform: 'translateY(-50%)', textAlign: 'center', fontFamily: sans, fontWeight: 800, fontSize: layout.hookFontSize, lineHeight: 1.1, color: colors.cream, opacity: hookOut, textShadow: '0 6px 24px rgba(0,0,0,0.6)'}}>
           {hookWords.map((w, i) => {
             const pp = interpolate(frame, [i * 1.5, i * 1.5 + 10], [0.4, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.out(Easing.back(1.4))});
-            const gold = /showed|up\./i.test(w);
+            const gold = (episode.hook.highlight ?? []).some((h) => h.toLowerCase() === w.toLowerCase());
             return (
               <span key={i} style={{display: 'inline-block', marginRight: '0.25em', transform: `translateY(${(1 - pp) * 26}px) scale(${0.9 + 0.1 * pp})`, opacity: pp, color: gold ? colors.gold : colors.cream}}>
                 {w}

@@ -20,7 +20,7 @@ export type Scene = {
 export type Episode = {
   title: string;
   slug: string;
-  hook: {text: string; startMs: number; endMs: number};
+  hook: {text: string; highlight?: string[]; startMs: number; endMs: number};
   narrationDurationMs: number;
   lastWordEndMs: number;
   endCardMs: number;
