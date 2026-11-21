@@ -11,20 +11,20 @@ const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const SKIN = '#E6C29C';
 
 /* ------------------------------------------------------------------ */
-/* NARRATOR LOOK — edit only this block to match Daniel's appearance.  */
+/* NARRATOR LOOK — Daniel, drawn from his reference photo.             */
 /* ------------------------------------------------------------------ */
 export const NARRATOR = {
-  skin: '#E2BB95',
-  beard: '#3B2A20', // beard colour
-  beardLength: 0.55, // 0 = clean-shaven … 1 = long
-  hair: '#3B2A20',
+  skin: '#EBC7A6',
+  beard: '#4A2E22', // dark brown, long and full
+  beardTips: '#9A7B62', // lighter tips
+  hair: '#2E1F17', // dark curly hair, swept up
   head: 'kippah' as 'kippah' | 'hat' | 'none',
-  kippah: C.navyDeep,
-  glasses: false,
-  jacket: '#1E3A5F',
-  shirt: C.cream,
-  pants: C.charcoal,
-  placeholder: true, // true until drawn from a reference photo
+  kippah: '#0B0B0F',
+  glasses: '#D9B25E', // round gold wire frames
+  jacket: '#14161B', // black jacket
+  shirt: '#F4F4F0', // white shirt
+  pants: '#14161B', // black pants
+  placeholder: false,
 };
 
 /* ----------------------------- backdrop ----------------------------- */
@@ -148,19 +148,41 @@ export const OldMan: React.FC<Omit<BodyProps, 'jacket' | 'shirt' | 'pants' | 'sk
 /* ---------------------------- narrator ----------------------------- */
 export const NarratorHead: React.FC<{smile: number}> = ({smile}) => {
   const N = NARRATOR;
-  const bl = N.beardLength;
   return (
     <g>
+      <defs>
+        <linearGradient id="narrator-beard" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={N.beard} />
+          <stop offset="70%" stopColor={N.beard} />
+          <stop offset="100%" stopColor={N.beardTips} />
+        </linearGradient>
+      </defs>
+      {/* curly hair mass, swept up, high forehead */}
+      {[[-46, -470, 26], [-24, -488, 26], [2, -494, 24], [-58, -446, 20], [24, -488, 18]].map(([cx, cy, r], i) => (
+        <circle key={i} cx={cx} cy={cy} r={r} fill={N.hair} />
+      ))}
       <circle cx={0} cy={-430} r={60} fill={N.skin} />
-      <path d="M58,-432 Q76,-418 58,-406" fill={N.skin} />
-      {/* hair at back of head */}
-      <path d="M-58,-440 Q-62,-480 -20,-488 Q-50,-470 -52,-430 Z" fill={N.hair} />
-      {bl > 0 && <path d={`M-56,-430 Q-54,${-370 + 60 * bl} 6,${-350 + 70 * bl} Q58,${-372 + 40 * bl} 58,-412 Q40,-392 4,-394 Q-36,-396 -56,-430 Z`} fill={N.beard} />}
-      <path d={`M18,-402 Q34,${-396 + 8 * smile} 48,-404`} stroke={bl > 0.3 ? C.cream : '#7A4A3A'} strokeWidth={5} fill="none" strokeLinecap="round" opacity={bl > 0.3 ? 0.8 : 1} />
-      <circle cx={32} cy={-438} r={5} fill={C.navyDeep} />
-      <path d="M18,-458 L46,-460" stroke={N.hair} strokeWidth={7} strokeLinecap="round" />
-      {N.glasses && <circle cx={30} cy={-436} r={17} fill="none" stroke={C.charcoal} strokeWidth={4} />}
-      {N.head === 'kippah' && <path d="M-42,-476 Q0,-506 42,-476 Q0,-488 -42,-476 Z" fill={N.kippah} />}
+      {/* nose */}
+      <path d="M58,-438 Q78,-418 58,-404" fill={N.skin} />
+      {/* ear + curly sidelock (peyos) */}
+      <ellipse cx={-26} cy={-428} rx={11} ry={16} fill={N.skin} stroke="#D4A887" strokeWidth={3} />
+      <path d="M-40,-446 q-14,10 0,20 q14,10 0,20 q-14,10 0,20 q14,10 0,20 q-12,8 -2,16" fill="none" stroke={N.hair} strokeWidth={9} strokeLinecap="round" />
+      {/* long full beard with lighter tips */}
+      <path d="M-46,-428 Q-70,-330 -40,-262 Q-4,-232 30,-252 Q72,-300 62,-412 Q44,-392 10,-392 Q-24,-394 -46,-428 Z" fill="url(#narrator-beard)" />
+      <path d="M-30,-330 q8,10 0,22 M0,-300 q8,10 0,22 M30,-320 q8,10 0,22 M-14,-280 q6,8 0,16" stroke={N.beardTips} strokeWidth={3} fill="none" opacity={0.6} />
+      {/* big smile */}
+      <path d={`M20,-404 Q36,${-386 + 4 * smile} 54,-404 Z`} fill="#FFFFFF" stroke="#7A4A3A" strokeWidth={2} />
+      {/* thick dark eyebrows */}
+      <path d="M14,-462 Q32,-470 50,-462" stroke={N.hair} strokeWidth={9} strokeLinecap="round" fill="none" />
+      {/* eye */}
+      <circle cx={34} cy={-440} r={5} fill={N.hair} />
+      {/* round gold glasses */}
+      <circle cx={34} cy={-440} r={17} fill="none" stroke={N.glasses} strokeWidth={4} />
+      <ellipse cx={64} cy={-440} rx={8} ry={16} fill="none" stroke={N.glasses} strokeWidth={4} />
+      <line x1={51} y1={-442} x2={56} y2={-442} stroke={N.glasses} strokeWidth={4} />
+      <line x1={17} y1={-442} x2={-14} y2={-436} stroke={N.glasses} strokeWidth={3} />
+      {/* black kippah */}
+      {N.head === 'kippah' && <path d="M-40,-492 Q-6,-524 30,-500 Q-6,-506 -40,-492 Z" fill={N.kippah} />}
       {N.head === 'hat' && (
         <g>
           <ellipse cx={0} cy={-478} rx={92} ry={15} fill={C.navyDeep} />
